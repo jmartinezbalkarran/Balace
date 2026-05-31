@@ -1,0 +1,15 @@
+{
+  "name": "Balace de gasto",
+  "short_name": "Balance",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fff",
+  "theme_color": "#e04747",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "376x376",
+      "type": "image/png"
+    }
+  ]
+}
