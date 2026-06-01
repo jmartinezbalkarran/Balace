@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-<link rel="manifest" href="./manifest.json">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Mis Finanzas - Control de Ingresos y Gastos</title>
+    <link rel="manifest" href="./manifest.json">
     <style>
         * {
             margin: 0;
@@ -185,6 +183,13 @@
             cursor: pointer;
         }
 
+        .btn-success {
+            background: #10b981;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
         /* Filtros */
         .filters {
             display: grid;
@@ -304,6 +309,12 @@
             color: #999;
         }
 
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
         @media (max-width: 768px) {
             .period-cards {
                 grid-template-columns: 1fr;
@@ -411,6 +422,16 @@
                     <button class="btn-secondary" onclick="limpiarFiltros()">🗑️ Limpiar</button>
                 </div>
             </div>
+            
+            <div class="form-section">
+                <div class="form-title">💾 Backup y Restauración</div>
+                <div class="button-group">
+                    <button class="btn-success" onclick="exportarJSON()">📤 Exportar a JSON</button>
+                    <label for="importarArchivo" class="btn-secondary" style="display: inline-block; text-align: center; cursor: pointer;">📥 Importar JSON</label>
+                    <input type="file" id="importarArchivo" accept=".json" style="display: none;" onchange="importarJSON(this.files[0])">
+                </div>
+            </div>
+            
             <div class="movimientos-list">
                 <div id="todosMovimientos"></div>
             </div>
@@ -449,10 +470,10 @@
         // ==================== CONFIGURACIÓN INICIAL ====================
         let movimientos = [];
         
-        // Categorías según lo solicitado
+        // Categorías actualizadas según lo solicitado
         const categorias = {
-            ingreso: ['Sueldo', 'Regalos', 'Otros'],
-            gasto: ['Comida', 'Familia', 'Inversión Dios', 'Otro']
+            ingreso: ['Sueldo', 'Regalo', 'Otros'],
+            gasto: ['Comida', 'Familia', 'Inversión Dios', 'Personal', 'Otro']
         };
 
         // Cargar datos del localStorage al iniciar
@@ -464,8 +485,8 @@
                 // Datos de ejemplo para mostrar funcionalidad
                 const hoy = new Date().toISOString().split('T')[0];
                 movimientos = [
-                    { id: Date.now(), tipo: 'ingreso', monto: 1500, descripcion: 'Sueldo marzo', categoria: 'Sueldo', fecha: hoy },
-                    { id: Date.now()+1, tipo: 'gasto', monto: 250, descripcion: 'Supermercado', categoria: 'Comida', fecha: hoy },
+                    { id: Date.now(), tipo: 'ingreso', monto: 1200, descripcion: 'Sueldo junio', categoria: 'Sueldo', fecha: hoy },
+                    { id: Date.now()+1, tipo: 'gasto', monto: 60, descripcion: 'Supermercado', categoria: 'Comida', fecha: hoy },
                     { id: Date.now()+2, tipo: 'gasto', monto: 100, descripcion: 'Diezmo', categoria: 'Inversión Dios', fecha: hoy }
                 ];
             }
@@ -545,7 +566,7 @@
             // Balance total
             const totalIngresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + m.monto, 0);
             const totalGastos = movimientos.filter(m => m.tipo === 'gasto').reduce((sum, m) => sum + m.monto, 0);
-            document.getElementById('balanceTotal').innerText = `${(totalIngresos - totalGastos).toFixed(2)} Bs`;
+            document.getElementById('balanceTotal').innerHTML = `${(totalIngresos - totalGastos).toFixed(2)} Bs`;
             
             // Dashboard cards
             const hoy = calcularEstadisticas('hoy');
@@ -701,13 +722,64 @@
             `).join('');
         }
         
+        // Funciones de Exportar/Importar JSON
+        function exportarJSON() {
+            const datos = {
+                version: "1.0",
+                fechaExportacion: new Date().toISOString(),
+                movimientos: movimientos,
+                categorias: categorias
+            };
+            
+            const datosStr = JSON.stringify(datos, null, 2);
+            const blob = new Blob([datosStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `finanzas_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('✅ Datos exportados exitosamente');
+        }
+        
+        function importarJSON(archivo) {
+            if (!archivo) return;
+            
+            const lector = new FileReader();
+            lector.onload = function(e) {
+                try {
+                    const datos = JSON.parse(e.target.result);
+                    
+                    // Validar que tenga la estructura correcta
+                    if (datos.movimientos && Array.isArray(datos.movimientos)) {
+                        movimientos = datos.movimientos;
+                        guardarDatos();
+                        actualizarUI();
+                        alert('✅ Datos importados exitosamente');
+                    } else {
+                        alert('❌ Archivo inválido: no contiene movimientos');
+                    }
+                } catch (error) {
+                    alert('❌ Error al leer el archivo: formato JSON inválido');
+                }
+            };
+            lector.readAsText(archivo);
+        }
+        
         function showTab(tab) {
             document.getElementById('dashboardTab').style.display = tab === 'dashboard' ? 'block' : 'none';
             document.getElementById('movimientosTab').style.display = tab === 'movimientos' ? 'block' : 'none';
             document.getElementById('reportesTab').style.display = tab === 'reportes' ? 'block' : 'none';
             
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            // Actualizar clase activa en los botones
+            const botones = document.querySelectorAll('.tab-btn');
+            botones.forEach(btn => btn.classList.remove('active'));
+            if (tab === 'dashboard') botones[0].classList.add('active');
+            if (tab === 'movimientos') botones[1].classList.add('active');
+            if (tab === 'reportes') botones[2].classList.add('active');
             
             if (tab === 'movimientos') aplicarFiltros();
             if (tab === 'reportes') actualizarReportes();
