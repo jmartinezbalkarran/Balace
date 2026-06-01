@@ -1,6 +1,6 @@
 {
   "name": "Balance",
-  "short_name": "Balance",
+  "short_name": "Balace",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#fff",
