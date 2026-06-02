@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
@@ -170,7 +170,6 @@
             background: rgba(0,0,0,0.4);
             z-index: 999;
             display: none;
-            cursor: pointer;
         }
 
         .overlay.active {
@@ -313,20 +312,12 @@
 
         input, select, button {
             width: 100%;
-            padding: 12px 14px;
+            padding: 10px 14px;
             border: 1px solid #dee2e6;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 14px;
             transition: all 0.2s;
             background: white;
-        }
-
-        /* Campo de monto con formato especial */
-        .monto-input {
-            font-size: 18px;
-            font-weight: 600;
-            text-align: right;
-            letter-spacing: 0.5px;
         }
 
         input:focus, select:focus {
@@ -600,38 +591,6 @@
             margin-top: 20px;
         }
 
-        /* Teclado numérico virtual (opcional) */
-        .numeric-keyboard {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-top: 15px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-
-        .key-btn {
-            padding: 12px;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
-        .key-btn:hover {
-            background: #e9ecef;
-        }
-
-        .key-btn.special {
-            background: #1a2c3e;
-            color: white;
-        }
-
         @media (max-width: 768px) {
             .main-content {
                 padding: 16px;
@@ -663,12 +622,12 @@
 <body>
     <!-- Header fijo -->
     <div class="app-header">
-        <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">
+        <div class="menu-icon" onclick="toggleMenu()">
             <span></span>
             <span></span>
             <span></span>
         </div>
-        <div class="app-title">💰 FINANZAS</div>
+        <div class="app-title">💰 FINANZAS PRO</div>
         <div class="add-quick-btn" onclick="abrirModalAgregarRapido()">+</div>
     </div>
 
@@ -676,44 +635,44 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>Menú Principal</h3>
-            <p>Gestión financiera</p>
+            <p>Gestión financiera profesional</p>
         </div>
         
         <div class="sidebar-section">
             <div class="sidebar-section-title">Navegación</div>
-            <div class="sidebar-item" onclick="cambiarVista('dashboard'); cerrarMenu()">
+            <div class="sidebar-item" onclick="cambiarVista('dashboard'); toggleMenu()">
                 <span>📊</span><span>Dashboard</span>
             </div>
-            <div class="sidebar-item" onclick="cambiarVista('movimientos'); cerrarMenu()">
+            <div class="sidebar-item" onclick="cambiarVista('movimientos'); toggleMenu()">
                 <span>📝</span><span>Todos los movimientos</span>
             </div>
-            <div class="sidebar-item" onclick="cambiarVista('reportes'); cerrarMenu()">
+            <div class="sidebar-item" onclick="cambiarVista('reportes'); toggleMenu()">
                 <span>📈</span><span>Reportes y gráficos</span>
             </div>
-            <div class="sidebar-item" onclick="cambiarVista('presupuestos'); cerrarMenu()">
+            <div class="sidebar-item" onclick="cambiarVista('presupuestos'); toggleMenu()">
                 <span>🎯</span><span>Presupuestos mensuales</span>
             </div>
         </div>
 
         <div class="sidebar-section">
             <div class="sidebar-section-title">Datos</div>
-            <div class="sidebar-item" onclick="exportarJSON(); cerrarMenu()">
+            <div class="sidebar-item" onclick="exportarJSON(); toggleMenu()">
                 <span>📤</span><span>Exportar datos</span>
             </div>
-            <div class="sidebar-item" onclick="importarJSONPrompt(); cerrarMenu()">
+            <div class="sidebar-item" onclick="importarJSONPrompt(); toggleMenu()">
                 <span>📥</span><span>Importar datos</span>
             </div>
         </div>
 
         <div class="sidebar-section">
             <div class="sidebar-section-title">Información</div>
-            <div class="sidebar-item" onclick="abrirAcerca(); cerrarMenu()">
+            <div class="sidebar-item" onclick="abrirAcerca(); toggleMenu()">
                 <span>ℹ️</span><span>Acerca de</span>
             </div>
         </div>
     </div>
 
-    <div class="overlay" id="overlay" onclick="cerrarMenu()"></div>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <!-- Contenido principal dinámico -->
     <div class="main-content" id="mainContent"></div>
@@ -736,7 +695,7 @@
                 </div>
                 <div class="form-group">
                     <label>Monto (Bs)</label>
-                    <input type="text" id="editMonto" class="monto-input" placeholder="0,00" required>
+                    <input type="number" id="editMonto" step="0.01" required>
                 </div>
                 <div class="form-group">
                     <label>Descripción</label>
@@ -777,7 +736,6 @@
                     <li>✓ Backup y restauración de datos</li>
                     <li>✓ Edición completa de movimientos</li>
                     <li>✓ Filtros avanzados</li>
-                    <li>✓ Formato de moneda con puntos y comas</li>
                 </ul>
                 <hr style="margin: 16px 0; border-color: #e9ecef;">
                 <p style="text-align: center; color: #6c757d; font-size: 12px;">Diseñado para una gestión financiera eficiente</p>
@@ -794,88 +752,23 @@
         let vistaActual = 'dashboard';
         let periodoActual = 'hoy';
         
+        // Categorías corregidas
         const categorias = {
             ingreso: ['Sueldo', 'Regalo', 'Otros'],
-            gasto: ['Comida', 'Familia', 'Inversión Dios', 'Personal', 'Otro']
+            gasto: ['Comida', 'Familia', 'Inversión', 'Dios', 'Personal', 'Otro']
         };
 
-        // ==================== FUNCIONES DE FORMATEO DE MONEDA ====================
-        
-        /**
-         * Convierte un string con formato de moneda (ej: "1.200,50") a número
-         * @param {string} valorStr - String con formato de moneda
-         * @returns {number} - Valor numérico
-         */
-        function formatearStringANumero(valorStr) {
-            if (!valorStr) return 0;
-            // Eliminar puntos de miles y cambiar coma por punto decimal
-            let limpio = valorStr.toString().replace(/\./g, '').replace(',', '.');
-            let numero = parseFloat(limpio);
-            return isNaN(numero) ? 0 : numero;
+        // Función para formatear montos: 1.234,56
+        function formatearMonto(valor) {
+            return valor.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        /**
-         * Formatea un número a formato de moneda (ej: 1250.5 -> "1.250,50")
-         * @param {number} numero - Número a formatear
-         * @returns {string} - String formateado
-         */
-        function formatearNumeroAMoneda(numero) {
-            if (numero === null || numero === undefined || isNaN(numero)) return "0,00";
-            // Formatear con 2 decimales, separador de miles = punto, decimal = coma
-            return numero.toLocaleString('es-ES', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+        // Función para desformatear monto (eliminar puntos y comas)
+        function desformatearMonto(valorFormateado) {
+            return parseFloat(valorFormateado.replace(/\./g, '').replace(',', '.'));
         }
 
-        /**
-         * Configura un campo input para formateo automático de moneda
-         * @param {HTMLElement} input - Elemento input a configurar
-         */
-        function configurarInputMoneda(input) {
-            if (!input) return;
-            
-            // Al perder el foco, formatear el valor
-            input.addEventListener('blur', function() {
-                let valor = this.value;
-                let numero = formatearStringANumero(valor);
-                this.value = formatearNumeroAMoneda(numero);
-            });
-            
-            // Al recibir foco, mostrar solo el número sin formato para editar
-            input.addEventListener('focus', function() {
-                let numero = formatearStringANumero(this.value);
-                this.value = numero.toString().replace('.', ',');
-            });
-            
-            // Permitir solo números, coma y punto
-            input.addEventListener('keypress', function(e) {
-                const char = String.fromCharCode(e.keyCode);
-                const allowed = /[0-9,.]/;
-                if (!allowed.test(char)) {
-                    e.preventDefault();
-                }
-            });
-        }
-
-        // ==================== FUNCIONES DEL MENÚ ====================
-        function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-        }
-
-        function cerrarMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            if (sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
-                overlay.classList.remove('active');
-            }
-        }
-
-        // ==================== FUNCIONES DE DATOS ====================
+        // Cargar datos
         function cargarDatos() {
             const guardado = localStorage.getItem('finanzas_app');
             if (guardado) {
@@ -887,9 +780,9 @@
                 movimientos = [
                     { id: Date.now(), tipo: 'ingreso', monto: 1200, descripcion: 'Sueldo mensual', categoria: 'Sueldo', fecha: hoy },
                     { id: Date.now()+1, tipo: 'gasto', monto: 60, descripcion: 'Supermercado', categoria: 'Comida', fecha: hoy },
-                    { id: Date.now()+2, tipo: 'gasto', monto: 100, descripcion: 'Diezmo', categoria: 'Inversión Dios', fecha: hoy }
+                    { id: Date.now()+2, tipo: 'gasto', monto: 100, descripcion: 'Diezmo', categoria: 'Dios', fecha: hoy }
                 ];
-                presupuestos = { 'Comida': 300, 'Familia': 200, 'Inversión Dios': 150, 'Personal': 200, 'Otro': 100 };
+                presupuestos = { 'Comida': 300, 'Familia': 200, 'Inversión': 150, 'Dios': 100, 'Personal': 200, 'Otro': 100 };
             }
             actualizarSelects();
             renderizarVistaActual();
@@ -913,8 +806,9 @@
             
             if (filtroCat) {
                 filtroCat.innerHTML = '<option value="">Todas las categorías</option>';
-                categorias.gasto.forEach(cat => filtroCat.innerHTML += `<option value="${cat}">${cat}</option>`);
-                categorias.ingreso.forEach(cat => filtroCat.innerHTML += `<option value="${cat}">${cat}</option>`);
+                [...categorias.gasto, ...categorias.ingreso].forEach(cat => 
+                    filtroCat.innerHTML += `<option value="${cat}">${cat}</option>`
+                );
             }
             
             if (selectPresup) {
@@ -965,7 +859,7 @@
             return totalIngresos - totalGastos;
         }
 
-        // ==================== RENDERIZADO DE VISTAS ====================
+        // Renderizado de vistas
         function renderizarVistaActual() {
             const container = document.getElementById('mainContent');
             if (vistaActual === 'dashboard') {
@@ -990,7 +884,7 @@
             return `
                 <div class="balance-card">
                     <div class="balance-label">BALANCE TOTAL</div>
-                    <div class="balance-total">${formatearNumeroAMoneda(totalBalance)} Bs</div>
+                    <div class="balance-total">${formatearMonto(totalBalance)} Bs</div>
                 </div>
                 
                 <div class="period-tabs">
@@ -1002,15 +896,15 @@
                 <div class="stats-cards">
                     <div class="stat-card">
                         <div class="stat-card-title">Ingresos</div>
-                        <div class="stat-card-income">+${formatearNumeroAMoneda(stats.ingresos)} Bs</div>
+                        <div class="stat-card-income">+${formatearMonto(stats.ingresos)} Bs</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-title">Gastos</div>
-                        <div class="stat-card-expense">-${formatearNumeroAMoneda(stats.gastos)} Bs</div>
+                        <div class="stat-card-expense">-${formatearMonto(stats.gastos)} Bs</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-title">Balance</div>
-                        <div class="stat-card-balance">${formatearNumeroAMoneda(stats.balance)} Bs</div>
+                        <div class="stat-card-balance">${formatearMonto(stats.balance)} Bs</div>
                     </div>
                 </div>
                 
@@ -1026,7 +920,7 @@
                         </div>
                         <div class="form-group">
                             <label>Monto (Bs)</label>
-                            <input type="text" id="monto" class="monto-input" placeholder="0,00" required>
+                            <input type="number" id="monto" step="0.01" required placeholder="0.00">
                         </div>
                         <div class="form-group">
                             <label>Descripción</label>
@@ -1084,15 +978,15 @@
                 <div class="stats-cards">
                     <div class="stat-card">
                         <div class="stat-card-title">Total Ingresos</div>
-                        <div class="stat-card-income">+${formatearNumeroAMoneda(totalIngresos)} Bs</div>
+                        <div class="stat-card-income">+${formatearMonto(totalIngresos)} Bs</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-title">Total Gastos</div>
-                        <div class="stat-card-expense">-${formatearNumeroAMoneda(totalGastos)} Bs</div>
+                        <div class="stat-card-expense">-${formatearMonto(totalGastos)} Bs</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-title">Balance Neto</div>
-                        <div class="stat-card-balance">${formatearNumeroAMoneda(totalIngresos - totalGastos)} Bs</div>
+                        <div class="stat-card-balance">${formatearMonto(totalIngresos - totalGastos)} Bs</div>
                     </div>
                 </div>
                 <div class="charts-grid">
@@ -1135,7 +1029,7 @@
                         <div class="movement-date">📅 ${m.fecha}</div>
                     </div>
                     <div class="movement-amount ${m.tipo === 'ingreso' ? 'income' : 'expense'}">
-                        ${m.tipo === 'ingreso' ? '+' : '-'} ${formatearNumeroAMoneda(m.monto)} Bs
+                        ${m.tipo === 'ingreso' ? '+' : '-'} ${formatearMonto(m.monto)} Bs
                     </div>
                     <div class="action-buttons">
                         <button class="btn-edit" onclick="abrirModalEditar(${m.id})">✏️</button>
@@ -1167,14 +1061,14 @@
                     <div class="budget-item">
                         <div class="budget-info">
                             <div class="budget-name">${cat}</div>
-                            <div class="budget-spent">Gastado: ${formatearNumeroAMoneda(gastado)}</div>
+                            <div class="budget-spent">Gastado: ${formatearMonto(gastado)} Bs</div>
                         </div>
                         <div class="budget-bar-container">
                             <div class="budget-bar">
                                 <div class="budget-bar-fill ${isWarning ? 'warning' : ''}" style="width: ${Math.min(porcentaje, 100)}%"></div>
                             </div>
                         </div>
-                        <div class="budget-amount">${formatearNumeroAMoneda(presupuesto)}</div>
+                        <div class="budget-amount">${formatearMonto(presupuesto)} Bs</div>
                     </div>
                 `;
             }).join('');
@@ -1203,7 +1097,7 @@
             
             if (ctxGastos) {
                 chartGastos = new Chart(ctxGastos, {
-                    type: 'pie', data: { labels: gastosLabels, datasets: [{ data: gastosData, backgroundColor: ['#dc3545','#fd7e14','#28a745','#17a2b8','#6f42c1'] }] },
+                    type: 'pie', data: { labels: gastosLabels, datasets: [{ data: gastosData, backgroundColor: ['#dc3545','#fd7e14','#28a745','#17a2b8','#6f42c1','#20c997'] }] },
                     options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
                 });
             }
@@ -1215,28 +1109,14 @@
             }
         }
 
-        // ==================== EVENT HANDLERS ====================
+        // Event handlers
         function attachDashboardEvents() {
             const form = document.getElementById('movimientoForm');
-            const montoInput = document.getElementById('monto');
-            
-            // Configurar formato de moneda
-            if (montoInput) {
-                configurarInputMoneda(montoInput);
-                montoInput.value = '0,00';
-            }
-            
             if (form) {
                 form.onsubmit = (e) => {
                     e.preventDefault();
-                    const montoStr = document.getElementById('monto').value;
-                    const monto = formatearStringANumero(montoStr);
-                    
-                    if (!monto || monto <= 0) { 
-                        alert('Ingresa un monto válido (ej: 1.200,50)'); 
-                        return; 
-                    }
-                    
+                    const monto = parseFloat(document.getElementById('monto').value);
+                    if (!monto || monto <= 0) { alert('Ingresa un monto válido'); return; }
                     const nuevoMovimiento = {
                         id: Date.now(),
                         tipo: document.getElementById('tipo').value,
@@ -1251,7 +1131,6 @@
                     alert('✅ Movimiento guardado');
                 };
             }
-            
             document.getElementById('tipo')?.addEventListener('change', () => {
                 const tipo = document.getElementById('tipo').value;
                 const selectCat = document.getElementById('categoria');
@@ -1259,7 +1138,6 @@
                 selectCat.innerHTML = '';
                 opciones.forEach(cat => selectCat.innerHTML += `<option value="${cat}">${cat}</option>`);
             });
-            
             document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
         }
 
@@ -1315,18 +1193,11 @@
             const m = movimientos.find(m => m.id === id);
             document.getElementById('editId').value = m.id;
             document.getElementById('editTipo').value = m.tipo;
-            document.getElementById('editMonto').value = formatearNumeroAMoneda(m.monto);
+            document.getElementById('editMonto').value = m.monto;
             document.getElementById('editDescripcion').value = m.descripcion;
             document.getElementById('editFecha').value = m.fecha;
             actualizarSelectEditCategoria(m.tipo);
             document.getElementById('editCategoria').value = m.categoria;
-            
-            // Configurar formato de moneda en el modal
-            const editMonto = document.getElementById('editMonto');
-            if (editMonto) {
-                configurarInputMoneda(editMonto);
-            }
-            
             document.getElementById('editModal').style.display = 'flex';
         }
 
@@ -1335,20 +1206,11 @@
         document.getElementById('editForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
             const id = parseInt(document.getElementById('editId').value);
-            const montoStr = document.getElementById('editMonto').value;
-            const monto = formatearStringANumero(montoStr);
-            
-            if (!monto || monto <= 0) {
-                alert('Ingresa un monto válido');
-                return;
-            }
-            
             const index = movimientos.findIndex(m => m.id === id);
             if (index !== -1) {
                 movimientos[index] = {
-                    id, 
-                    tipo: document.getElementById('editTipo').value,
-                    monto: monto,
+                    id, tipo: document.getElementById('editTipo').value,
+                    monto: parseFloat(document.getElementById('editMonto').value),
                     descripcion: document.getElementById('editDescripcion').value,
                     categoria: document.getElementById('editCategoria').value,
                     fecha: document.getElementById('editFecha').value
@@ -1370,7 +1232,7 @@
             alert('✅ Presupuesto guardado');
         }
 
-        // ==================== NAVEGACIÓN ====================
+        // Navegación
         function cambiarVista(vista) {
             vistaActual = vista;
             periodoActual = 'hoy';
@@ -1388,15 +1250,16 @@
             }
             setTimeout(() => {
                 document.getElementById('movimientoForm')?.scrollIntoView({ behavior: 'smooth' });
-                const montoInput = document.getElementById('monto');
-                if (montoInput) {
-                    montoInput.focus();
-                    montoInput.select();
-                }
             }, 100);
         }
 
-        // ==================== EXPORTAR/IMPORTAR ====================
+        // Menú
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        // Exportar/Importar
         function exportarJSON() {
             const data = JSON.stringify({ movimientos, presupuestos, version: "1.0", fechaExportacion: new Date().toISOString() }, null, 2);
             const blob = new Blob([data], { type: 'application/json' });
@@ -1435,17 +1298,17 @@
         function abrirAcerca() { document.getElementById('acercaModal').style.display = 'flex'; }
         function cerrarAcercaModal() { document.getElementById('acercaModal').style.display = 'none'; }
 
-        // ==================== CIERRE DE MODALES ====================
+        // Inicialización
         window.onclick = (event) => { 
             if (event.target === document.getElementById('editModal')) cerrarModal();
             if (event.target === document.getElementById('acercaModal')) cerrarAcercaModal();
+            if (event.target === document.getElementById('overlay')) toggleMenu();
         };
         
         // Exponer funciones globales
         window.cambiarVista = cambiarVista;
         window.cambiarPeriodo = cambiarPeriodo;
         window.toggleMenu = toggleMenu;
-        window.cerrarMenu = cerrarMenu;
         window.eliminarMovimiento = eliminarMovimiento;
         window.abrirModalEditar = abrirModalEditar;
         window.cerrarModal = cerrarModal;
@@ -1457,9 +1320,7 @@
         window.abrirAcerca = abrirAcerca;
         window.cerrarAcercaModal = cerrarAcercaModal;
         window.abrirModalAgregarRapido = abrirModalAgregarRapido;
-        window.formatearNumeroAMoneda = formatearNumeroAMoneda;
         
-        // Iniciar app
         cargarDatos();
     </script>
 </body>
