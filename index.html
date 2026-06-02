@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
 
         body {
@@ -160,7 +160,7 @@
             font-size: 18px;
         }
 
-        /* Overlay */
+        /* Overlay - fondo oscuro al abrir menú */
         .overlay {
             position: fixed;
             top: 0;
@@ -170,13 +170,14 @@
             background: rgba(0,0,0,0.4);
             z-index: 999;
             display: none;
+            cursor: pointer;
         }
 
         .overlay.active {
             display: block;
         }
 
-        /* Contenido principal - se desplaza para dejar espacio al header fijo */
+        /* Contenido principal */
         .main-content {
             margin-top: 72px;
             padding: 24px;
@@ -622,12 +623,12 @@
 <body>
     <!-- Header fijo -->
     <div class="app-header">
-        <div class="menu-icon" onclick="toggleMenu()">
+        <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">
             <span></span>
             <span></span>
             <span></span>
         </div>
-        <div class="app-title">💰 FINANZAS</div>
+        <div class="app-title">💰 FINANZAS PRO</div>
         <div class="add-quick-btn" onclick="abrirModalAgregarRapido()">+</div>
     </div>
 
@@ -635,44 +636,46 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>Menú Principal</h3>
-            <p>Gestión financiera</p>
+            <p>Gestión financiera profesional</p>
         </div>
         
         <div class="sidebar-section">
             <div class="sidebar-section-title">Navegación</div>
-            <div class="sidebar-item" onclick="cambiarVista('dashboard'); toggleMenu()">
+            <div class="sidebar-item" onclick="cambiarVista('dashboard'); cerrarMenu()">
                 <span>📊</span><span>Dashboard</span>
             </div>
-            <div class="sidebar-item" onclick="cambiarVista('movimientos'); toggleMenu()">
+            <div class="sidebar-item" onclick="cambiarVista('movimientos'); cerrarMenu()">
                 <span>📝</span><span>Todos los movimientos</span>
             </div>
-            <div class="sidebar-item" onclick="cambiarVista('reportes'); toggleMenu()">
+            <div class="sidebar-item" onclick="cambiarVista('reportes'); cerrarMenu()">
                 <span>📈</span><span>Reportes y gráficos</span>
             </div>
-            <div class="sidebar-item" onclick="cambiarVista('presupuestos'); toggleMenu()">
+            <div class="sidebar-item" onclick="cambiarVista('presupuestos'); cerrarMenu()">
                 <span>🎯</span><span>Presupuestos mensuales</span>
             </div>
         </div>
 
         <div class="sidebar-section">
             <div class="sidebar-section-title">Datos</div>
-            <div class="sidebar-item" onclick="exportarJSON(); toggleMenu()">
+            <div class="sidebar-item" onclick="exportarJSON(); cerrarMenu()">
                 <span>📤</span><span>Exportar datos</span>
             </div>
-            <div class="sidebar-item" onclick="importarJSONPrompt(); toggleMenu()">
+            <div class="sidebar-item" onclick="importarJSONPrompt(); cerrarMenu()">
                 <span>📥</span><span>Importar datos</span>
             </div>
         </div>
 
         <div class="sidebar-section">
             <div class="sidebar-section-title">Información</div>
-            <div class="sidebar-item" onclick="abrirAcerca(); toggleMenu()">
+            <div class="sidebar-item" onclick="abrirAcerca(); cerrarMenu()">
                 <span>ℹ️</span><span>Acerca de</span>
             </div>
         </div>
     </div>
 
-    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+    <!-- Overlay: fondo oscuro que se muestra cuando el menú está abierto -->
+    <!-- Al hacer clic en el overlay, se cierra el menú -->
+    <div class="overlay" id="overlay" onclick="cerrarMenu()"></div>
 
     <!-- Contenido principal dinámico -->
     <div class="main-content" id="mainContent">
@@ -759,7 +762,24 @@
             gasto: ['Comida', 'Familia', 'Inversión Dios', 'Personal', 'Otro']
         };
 
-        // Cargar datos
+        // ==================== FUNCIONES DEL MENÚ ====================
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function cerrarMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        }
+
+        // ==================== FUNCIONES DE DATOS ====================
         function cargarDatos() {
             const guardado = localStorage.getItem('finanzas_app');
             if (guardado) {
@@ -849,7 +869,7 @@
             return totalIngresos - totalGastos;
         }
 
-        // Renderizado de vistas
+        // ==================== RENDERIZADO DE VISTAS ====================
         function renderizarVistaActual() {
             const container = document.getElementById('mainContent');
             if (vistaActual === 'dashboard') {
@@ -1099,7 +1119,7 @@
             }
         }
 
-        // Event handlers
+        // ==================== EVENT HANDLERS ====================
         function attachDashboardEvents() {
             const form = document.getElementById('movimientoForm');
             if (form) {
@@ -1222,7 +1242,7 @@
             alert('✅ Presupuesto guardado');
         }
 
-        // Navegación
+        // ==================== NAVEGACIÓN ====================
         function cambiarVista(vista) {
             vistaActual = vista;
             periodoActual = 'hoy';
@@ -1243,13 +1263,7 @@
             }, 100);
         }
 
-        // Menú
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-
-        // Exportar/Importar
+        // ==================== EXPORTAR/IMPORTAR ====================
         function exportarJSON() {
             const data = JSON.stringify({ movimientos, presupuestos, version: "1.0", fechaExportacion: new Date().toISOString() }, null, 2);
             const blob = new Blob([data], { type: 'application/json' });
@@ -1288,17 +1302,18 @@
         function abrirAcerca() { document.getElementById('acercaModal').style.display = 'flex'; }
         function cerrarAcercaModal() { document.getElementById('acercaModal').style.display = 'none'; }
 
-        // Inicialización
+        // ==================== CIERRE DE MODALES AL HACER CLICK FUERA ====================
         window.onclick = (event) => { 
             if (event.target === document.getElementById('editModal')) cerrarModal();
             if (event.target === document.getElementById('acercaModal')) cerrarAcercaModal();
-            if (event.target === document.getElementById('overlay')) toggleMenu();
+            // El overlay del menú ya tiene su propio onclick="cerrarMenu()"
         };
         
         // Exponer funciones globales
         window.cambiarVista = cambiarVista;
         window.cambiarPeriodo = cambiarPeriodo;
         window.toggleMenu = toggleMenu;
+        window.cerrarMenu = cerrarMenu;
         window.eliminarMovimiento = eliminarMovimiento;
         window.abrirModalEditar = abrirModalEditar;
         window.cerrarModal = cerrarModal;
@@ -1311,6 +1326,7 @@
         window.cerrarAcercaModal = cerrarAcercaModal;
         window.abrirModalAgregarRapido = abrirModalAgregarRapido;
         
+        // Iniciar app
         cargarDatos();
     </script>
 </body>
