@@ -7,6 +7,7 @@
     <link rel="manifest" href="./manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        /* ========== TODOS LOS ESTILOS ORIGINALES (sin cambios) ========== */
         * {
             margin: 0;
             padding: 0;
@@ -580,30 +581,80 @@
             margin-top: 20px;
         }
 
+        .group-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .group-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .group-btn.active {
+            background: #1a2c3e;
+            color: white;
+        }
+
+        /* Estilos para pestañas de subsección */
+        .submenu-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+        .submenu-tab {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+        .submenu-tab.active {
+            background: #1a2c3e;
+            color: white;
+        }
+        .submenu-tab:hover:not(.active) {
+            background: #e9ecef;
+            color: #1a2c3e;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 padding: 16px;
             }
-            
             .stats-cards {
                 grid-template-columns: 1fr;
             }
-
             .charts-grid {
                 grid-template-columns: 1fr;
             }
-
             .budget-item {
                 flex-wrap: wrap;
             }
-
             .budget-bar-container {
                 margin: 10px 0;
                 width: 100%;
             }
-
             .balance-total {
                 font-size: 32px;
+            }
+            .submenu-tab {
+                padding: 6px 12px;
+                font-size: 14px;
             }
         }
     </style>
@@ -624,141 +675,87 @@
             <h3>Menú Principal</h3>
             <p>Gestión financiera</p>
         </div>
-        
         <div class="sidebar-section">
             <div class="sidebar-section-title">Navegación</div>
-            <div class="sidebar-item" onclick="cerrarYCambiarVista('dashboard')">
-                <span>📊</span><span>Dashboard</span>
-            </div>
-            <div class="sidebar-item" onclick="cerrarYCambiarVista('movimientos')">
-                <span>📝</span><span>Todos los movimientos</span>
-            </div>
-            <div class="sidebar-item" onclick="cerrarYCambiarVista('reportes')">
-                <span>📈</span><span>Reportes y gráficos</span>
-            </div>
-            <div class="sidebar-item" onclick="cerrarYCambiarVista('presupuestos')">
-                <span>🎯</span><span>Presupuestos mensuales</span>
-            </div>
+            <div class="sidebar-item" onclick="cerrarYCambiarVista('dashboard')"><span>📊</span><span>Dashboard</span></div>
+            <div class="sidebar-item" onclick="cerrarYCambiarVista('movimientos')"><span>📝</span><span>Todos los movimientos</span></div>
+            <div class="sidebar-item" onclick="cerrarYCambiarVista('reportes')"><span>📈</span><span>Reportes y gráficos</span></div>
+            <div class="sidebar-item" onclick="cerrarYCambiarVista('presupuestos')"><span>🎯</span><span>Presupuestos mensuales</span></div>
         </div>
-
         <div class="sidebar-section">
             <div class="sidebar-section-title">Datos</div>
-            <div class="sidebar-item" onclick="exportarJSON(); toggleMenu()">
-                <span>📤</span><span>Exportar datos</span>
-            </div>
-            <div class="sidebar-item" onclick="importarJSONPrompt(); toggleMenu()">
-                <span>📥</span><span>Importar datos</span>
-            </div>
+            <div class="sidebar-item" onclick="exportarJSON(); toggleMenu()"><span>📤</span><span>Exportar datos</span></div>
+            <div class="sidebar-item" onclick="importarJSONPrompt(); toggleMenu()"><span>📥</span><span>Importar datos</span></div>
         </div>
-
         <div class="sidebar-section">
             <div class="sidebar-section-title">Información</div>
-            <div class="sidebar-item" onclick="abrirAcerca(); toggleMenu()">
-                <span>ℹ️</span><span>Acerca de</span>
-            </div>
+            <div class="sidebar-item" onclick="abrirAcerca(); toggleMenu()"><span>ℹ️</span><span>Acerca de</span></div>
         </div>
     </div>
 
     <div class="overlay" id="overlay" onclick="cerrarMenu()"></div>
-
     <div class="main-content" id="mainContent"></div>
 
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>✏️ Editar movimiento</h3>
-                <span class="close-modal" onclick="cerrarModal()">&times;</span>
-            </div>
-            <form id="editForm">
-                <input type="hidden" id="editId">
-                <div class="form-group">
-                    <label>Tipo</label>
-                    <select id="editTipo" required onchange="actualizarSelectEditCategoria(this.value)">
-                        <option value="ingreso">💰 Ingreso</option>
-                        <option value="gasto">💸 Gasto</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Monto (Bs)</label>
-                    <input type="text" id="editMonto" required placeholder="Ej: 1.234,56">
-                </div>
-                <div class="form-group">
-                    <label>Descripción</label>
-                    <input type="text" id="editDescripcion" required>
-                </div>
-                <div class="form-group">
-                    <label>Categoría</label>
-                    <select id="editCategoria" required></select>
-                </div>
-                <div class="form-group">
-                    <label>Fecha</label>
-                    <input type="date" id="editFecha" required>
-                </div>
-                <div class="button-group">
-                    <button type="submit" class="btn-primary">💾 Guardar cambios</button>
-                    <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- Modales (sin cambios) -->
+    <div id="editModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>✏️ Editar movimiento</h3><span class="close-modal" onclick="cerrarModal()">&times;</span></div>
+    <form id="editForm"><input type="hidden" id="editId"><div class="form-group"><label>Tipo</label><select id="editTipo" required onchange="actualizarSelectEditCategoria(this.value)"><option value="ingreso">💰 Ingreso</option><option value="gasto">💸 Gasto</option></select></div>
+    <div class="form-group"><label>Monto (Bs)</label><input type="text" id="editMonto" required placeholder="Ej: 1.234,56"></div>
+    <div class="form-group"><label>Descripción</label><input type="text" id="editDescripcion" required></div>
+    <div class="form-group"><label>Categoría</label><select id="editCategoria" required></select></div>
+    <div class="form-group"><label>Fecha</label><input type="date" id="editFecha" required></div>
+    <div class="button-group"><button type="submit" class="btn-primary">💾 Guardar cambios</button><button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button></div></form></div></div>
 
-    <div id="acercaModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>ℹ️ Acerca de</h3>
-                <span class="close-modal" onclick="cerrarAcercaModal()">&times;</span>
-            </div>
-            <div>
-                <p style="font-size: 18px; font-weight: 600; color: #1a2c3e;">Finanzas Pro</p>
-                <p style="color: #6c757d; margin-top: 4px;">Versión 2.0</p>
-                <hr style="margin: 16px 0; border-color: #e9ecef;">
-                <p style="font-weight: 500; margin-bottom: 12px;">Características:</p>
-                <ul style="margin-left: 20px; color: #495057; line-height: 1.6;">
-                    <li>✓ Dashboard con resumen diario/semanal/mensual</li>
-                    <li>✓ Gráficos estadísticos por categoría</li>
-                    <li>✓ Presupuestos mensuales</li>
-                    <li>✓ Backup y restauración de datos</li>
-                    <li>✓ Edición completa de movimientos</li>
-                    <li>✓ Filtros avanzados</li>
-                </ul>
-                <hr style="margin: 16px 0; border-color: #e9ecef;">
-                <p style="text-align: center; color: #6c757d; font-size: 12px;">Diseñado para una gestión financiera eficiente</p>
-            </div>
-        </div>
-    </div>
+    <div id="acercaModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>ℹ️ Acerca de</h3><span class="close-modal" onclick="cerrarAcercaModal()">&times;</span></div>
+    <div><p style="font-size:18px;font-weight:600;color:#1a2c3e;">Finanzas Pro</p><p style="color:#6c757d;">Versión 3.0</p><hr style="margin:16px 0;"><p><strong>Características:</strong></p><ul><li>✓ Dashboard con resumen diario/semanal/mensual</li><li>✓ Reportes con tres subsecciones: Balance, Evaluación gráfico, Balance por categorías</li><li>✓ Presupuestos mensuales</li><li>✓ Gráfico dinámico de evolución (día/semana/mes)</li><li>✓ Backup y restauración de datos</li></ul></div></div></div>
 
     <script>
-        // ==================== CONFIGURACIÓN ====================
+        // ==================== CONFIGURACIÓN GLOBAL ====================
         let movimientos = [];
         let presupuestos = {};
-        let chartGastos = null;
-        let chartIngresos = null;
+        let chartActual = null;          // para el gráfico de la subsección "Balance por categorías"
+        let chartBarrasDinamico = null;   // gráfico de evolución
         let vistaActual = 'dashboard';
-        let periodoActual = 'hoy';
-        
+        let periodoActual = 'hoy';        // para el dashboard
+        let agrupacionActual = 'semana';   // para el gráfico de evolución
+        // Nuevas variables para la sección reportes
+        let subSeccionReportes = 'balance';   // 'balance', 'evolucion', 'categorias'
+        let periodoBalance = 'hoy';           // período para la subsección "Balance"
+        let periodoCategorias = 'mes';        // período para la subsección "Balance por categorías"
+        let tipoCategorias = 'ingreso';       // 'ingreso' o 'gasto'
+
         const categorias = {
             ingreso: ['Sueldo', 'Regalo', 'Otros'],
             gasto: ['Comida', 'Familia', 'Inversión', 'Dios', 'Personal', 'Otro']
         };
 
-        // ==================== FUNCIONES DE FORMATO DE MONTOS ====================
-        
+        // ==================== FUNCIONES BASE ====================
         function formatearMontoVisual(valorNumerico) {
             if (isNaN(valorNumerico) || valorNumerico === null) return '0,00';
-            return valorNumerico.toLocaleString('es-VE', { 
-                minimumFractionDigits: 2, 
-                maximumFractionDigits: 2 
-            });
+            return valorNumerico.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
-
         function convertirTextoAMonto(texto) {
             if (!texto || texto === '') return 0;
             let limpio = texto.toString().replace(/\./g, '').replace(',', '.');
             let numero = parseFloat(limpio);
             return isNaN(numero) ? 0 : numero;
         }
+        function getWeekNumber(dateStr) {
+            const date = new Date(dateStr);
+            const startOfYear = new Date(date.getFullYear(), 0, 1);
+            const days = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
+            return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        }
+        function esMismaFecha(f1, f2) { return f1 === f2; }
+        function mismaSemana(f1, f2) {
+            const getWeek = (d) => { let date = new Date(d); return Math.ceil((((date - new Date(date.getFullYear(),0,1)) / 86400000) + new Date(date.getFullYear(),0,1).getDay())/7); };
+            return new Date(f1).getFullYear() === new Date(f2).getFullYear() && getWeek(f1) === getWeek(f2);
+        }
+        function mismoMes(f1, f2) {
+            const d1 = new Date(f1), d2 = new Date(f2);
+            return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
+        }
 
-        // ==================== FUNCIONES PRINCIPALES ====================
+        // ==================== CRUD Y PERSISTENCIA ====================
         function cargarDatos() {
             const guardado = localStorage.getItem('finanzas_app');
             if (guardado) {
@@ -774,39 +771,31 @@
                 ];
                 presupuestos = { 'Comida': 300, 'Familia': 200, 'Inversión': 150, 'Dios': 100, 'Personal': 200, 'Otro': 100 };
             }
-            renderizarVistaActual(); 
+            renderizarVistaActual();
             actualizarSelects();
         }
-
         function guardarDatos() {
-            localStorage.setItem('finanzas_app', JSON.stringify({ movimientos, presupuestos, version: "1.0" }));
+            localStorage.setItem('finanzas_app', JSON.stringify({ movimientos, presupuestos, version: "3.0" }));
         }
-
         function actualizarSelects() {
             const tipo = document.getElementById('tipo')?.value || 'ingreso';
             const selectCat = document.getElementById('categoria');
             const filtroCat = document.getElementById('filtroCategoria');
             const selectPresup = document.getElementById('selectCategoriaPresupuesto');
-            
             if (selectCat) {
                 let opciones = tipo === 'ingreso' ? categorias.ingreso : categorias.gasto;
                 selectCat.innerHTML = '';
                 opciones.forEach(cat => selectCat.innerHTML += `<option value="${cat}">${cat}</option>`);
             }
-            
             if (filtroCat) {
                 filtroCat.innerHTML = '<option value="">Todas las categorías</option>';
-                [...categorias.gasto, ...categorias.ingreso].forEach(cat => 
-                    filtroCat.innerHTML += `<option value="${cat}">${cat}</option>`
-                );
+                [...categorias.gasto, ...categorias.ingreso].forEach(cat => filtroCat.innerHTML += `<option value="${cat}">${cat}</option>`);
             }
-            
             if (selectPresup) {
                 selectPresup.innerHTML = '';
                 categorias.gasto.forEach(cat => selectPresup.innerHTML += `<option value="${cat}">${cat}</option>`);
             }
         }
-
         function actualizarSelectEditCategoria(tipo) {
             const editCat = document.getElementById('editCategoria');
             if (!editCat) return;
@@ -814,33 +803,14 @@
             editCat.innerHTML = '';
             opciones.forEach(cat => editCat.innerHTML += `<option value="${cat}">${cat}</option>`);
         }
-
-        // ==================== FUNCIONES DE FECHA ====================
-        function esMismaFecha(f1, f2) { return f1 === f2; }
-        
-        function mismaSemana(f1, f2) {
-            const getWeek = (d) => { 
-                let date = new Date(d); 
-                return Math.ceil((((date - new Date(date.getFullYear(),0,1)) / 86400000) + new Date(date.getFullYear(),0,1).getDay())/7); 
-            };
-            return new Date(f1).getFullYear() === new Date(f2).getFullYear() && getWeek(f1) === getWeek(f2);
-        }
-        
-        function mismoMes(f1, f2) {
-            const d1 = new Date(f1), d2 = new Date(f2);
-            return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
-        }
-
         function obtenerEstadisticasPorPeriodo(periodo) {
             const hoy = new Date().toISOString().split('T')[0];
             let ingresos = 0, gastos = 0;
-            
             movimientos.forEach(m => {
                 let incluir = false;
                 if (periodo === 'hoy') incluir = esMismaFecha(m.fecha, hoy);
                 else if (periodo === 'semana') incluir = mismaSemana(m.fecha, hoy);
                 else if (periodo === 'mes') incluir = mismoMes(m.fecha, hoy);
-                
                 if (incluir) {
                     if (m.tipo === 'ingreso') ingresos += m.monto;
                     else gastos += m.monto;
@@ -848,16 +818,163 @@
             });
             return { ingresos, gastos, balance: ingresos - gastos };
         }
-
         function getTotalBalance() {
             const totalIngresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0);
             const totalGastos = movimientos.filter(m => m.tipo === 'gasto').reduce((s, m) => s + m.monto, 0);
             return totalIngresos - totalGastos;
         }
 
+        // ==================== GRÁFICO DE EVOLUCIÓN (barras) ====================
+        function obtenerDatosDiarios() {
+            const hoy = new Date();
+            const diaSemana = hoy.getDay();
+            let lunes = new Date(hoy);
+            const diasHastaLunes = (diaSemana === 0 ? 6 : diaSemana - 1);
+            lunes.setDate(hoy.getDate() - diasHastaLunes);
+            const nombresDias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+            const labels = [], ingresosData = [], gastosData = [];
+            for (let i = 0; i < 7; i++) {
+                const fecha = new Date(lunes);
+                fecha.setDate(lunes.getDate() + i);
+                const fechaStr = fecha.toISOString().split('T')[0];
+                labels.push(nombresDias[i]);
+                let ing = 0, gas = 0;
+                movimientos.forEach(m => {
+                    if (m.fecha === fechaStr) {
+                        if (m.tipo === 'ingreso') ing += m.monto;
+                        else gas += m.monto;
+                    }
+                });
+                ingresosData.push(ing);
+                gastosData.push(gas);
+            }
+            return { labels, ingresosData, gastosData };
+        }
+        function obtenerDatosSemanales() {
+            const hoy = new Date();
+            const hoyStr = hoy.toISOString().split('T')[0];
+            const semanaActual = getWeekNumber(hoyStr);
+            const añoActual = hoy.getFullYear();
+            const labels = [], ingresosData = [], gastosData = [];
+            for (let i = 4; i >= 0; i--) {
+                let semana = semanaActual - i;
+                let año = añoActual;
+                if (semana <= 0) {
+                    año--;
+                    const fechaFinAñoAnterior = new Date(año, 11, 31);
+                    const semanaMaxAnterior = getWeekNumber(fechaFinAñoAnterior.toISOString().split('T')[0]);
+                    semana += semanaMaxAnterior;
+                }
+                labels.push(`S${semana} ${año}`);
+                let ing = 0, gas = 0;
+                movimientos.forEach(m => {
+                    const fechaMov = new Date(m.fecha);
+                    const añoMov = fechaMov.getFullYear();
+                    const semanaMov = getWeekNumber(m.fecha);
+                    if (añoMov === año && semanaMov === semana) {
+                        if (m.tipo === 'ingreso') ing += m.monto;
+                        else gas += m.monto;
+                    }
+                });
+                ingresosData.push(ing);
+                gastosData.push(gas);
+            }
+            return { labels, ingresosData, gastosData };
+        }
+        function obtenerDatosMensuales() {
+            const hoy = new Date();
+            const añoActual = hoy.getFullYear();
+            const mesActual = hoy.getMonth();
+            const nombresMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const labels = [], ingresosData = [], gastosData = [];
+            for (let i = 5; i >= 0; i--) {
+                let mes = mesActual - i;
+                let año = añoActual;
+                if (mes < 0) { año--; mes += 12; }
+                labels.push(`${nombresMeses[mes]} ${año}`);
+                let ing = 0, gas = 0;
+                movimientos.forEach(m => {
+                    const fecha = new Date(m.fecha);
+                    if (fecha.getFullYear() === año && fecha.getMonth() === mes) {
+                        if (m.tipo === 'ingreso') ing += m.monto;
+                        else gas += m.monto;
+                    }
+                });
+                ingresosData.push(ing);
+                gastosData.push(gas);
+            }
+            return { labels, ingresosData, gastosData };
+        }
+        function obtenerDatosAgrupados(agrupacion) {
+            if (agrupacion === 'dia') return obtenerDatosDiarios();
+            if (agrupacion === 'semana') return obtenerDatosSemanales();
+            return obtenerDatosMensuales();
+        }
+        function actualizarGraficoBarrasDinamico() {
+            if (chartBarrasDinamico) chartBarrasDinamico.destroy();
+            const { labels, ingresosData, gastosData } = obtenerDatosAgrupados(agrupacionActual);
+            const ctx = document.getElementById('graficoBarrasDinamico');
+            if (!ctx) return;
+            chartBarrasDinamico = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets: [{ label: 'Ingresos', data: ingresosData, backgroundColor: '#28a745' }, { label: 'Gastos', data: gastosData, backgroundColor: '#dc3545' }] },
+                options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('es-VE') } } }, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+        function cambiarAgrupacion(tipo) {
+            agrupacionActual = tipo;
+            if (vistaActual === 'reportes' && subSeccionReportes === 'evolucion') {
+                actualizarGraficoBarrasDinamico();
+                // actualizar clase activa en botones (se hará en el render)
+            }
+        }
+
+        // ==================== GRÁFICO DE CATEGORÍAS (pastel único) ====================
+        function actualizarGraficoCategorias() {
+            if (chartActual) chartActual.destroy();
+            const hoy = new Date().toISOString().split('T')[0];
+            const movimientosFiltrados = movimientos.filter(m => {
+                if (periodoCategorias === 'hoy') return esMismaFecha(m.fecha, hoy);
+                if (periodoCategorias === 'semana') return mismaSemana(m.fecha, hoy);
+                if (periodoCategorias === 'mes') return mismoMes(m.fecha, hoy);
+                return true;
+            });
+            // Agrupar por categoría según tipoCategorias (ingreso o gasto)
+            const datosCat = {};
+            const categoriasDisponibles = tipoCategorias === 'ingreso' ? categorias.ingreso : categorias.gasto;
+            categoriasDisponibles.forEach(c => datosCat[c] = 0);
+            movimientosFiltrados.forEach(m => {
+                if (m.tipo === tipoCategorias) {
+                    datosCat[m.categoria] += m.monto;
+                }
+            });
+            const labels = Object.keys(datosCat).filter(c => datosCat[c] > 0);
+            const data = labels.map(c => datosCat[c]);
+            const colores = tipoCategorias === 'ingreso' ? ['#28a745','#20c997','#17a2b8'] : ['#dc3545','#fd7e14','#28a745','#17a2b8','#6f42c1','#20c997'];
+            const ctx = document.getElementById('graficoPastelCategorias');
+            if (!ctx) return;
+            chartActual = new Chart(ctx, {
+                type: 'pie',
+                data: { labels, datasets: [{ data, backgroundColor: colores }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+        function cambiarPeriodoCategorias(periodo) {
+            periodoCategorias = periodo;
+            actualizarGraficoCategorias();
+            // Actualizar estilos de botones (se hará en el render)
+        }
+        function cambiarTipoCategorias(tipo) {
+            tipoCategorias = tipo;
+            actualizarGraficoCategorias();
+        }
+
         // ==================== RENDERIZADO DE VISTAS ====================
         function renderizarVistaActual() {
             const container = document.getElementById('mainContent');
+            if (chartActual) { chartActual.destroy(); chartActual = null; }
+            if (chartBarrasDinamico) { chartBarrasDinamico.destroy(); chartBarrasDinamico = null; }
+
             if (vistaActual === 'dashboard') {
                 container.innerHTML = renderDashboard();
                 attachDashboardEvents();
@@ -873,544 +990,261 @@
             }
         }
 
+        // --- Subsección: Balance (tarjetas con período) ---
+        function renderBalance() {
+            const stats = obtenerEstadisticasPorPeriodo(periodoBalance);
+            return `
+                <div class="period-tabs">
+                    <button class="period-btn ${periodoBalance === 'hoy' ? 'active' : ''}" onclick="cambiarPeriodoBalance('hoy')">📅 Hoy</button>
+                    <button class="period-btn ${periodoBalance === 'semana' ? 'active' : ''}" onclick="cambiarPeriodoBalance('semana')">📆 7 Días</button>
+                    <button class="period-btn ${periodoBalance === 'mes' ? 'active' : ''}" onclick="cambiarPeriodoBalance('mes')">📅 30 Días</button>
+                </div>
+                <div class="stats-cards">
+                    <div class="stat-card"><div class="stat-card-title">INGRESOS</div><div class="stat-card-income">+${formatearMontoVisual(stats.ingresos)} Bs</div></div>
+                    <div class="stat-card"><div class="stat-card-title">GASTOS</div><div class="stat-card-expense">-${formatearMontoVisual(stats.gastos)} Bs</div></div>
+                    <div class="stat-card"><div class="stat-card-title">BALANCE</div><div class="stat-card-balance">${formatearMontoVisual(stats.balance)} Bs</div></div>
+                </div>
+            `;
+        }
+
+        // --- Subsección: Evaluación gráfico (evolución) ---
+        function renderEvolucion() {
+            return `
+                <div class="chart-card">
+                    <h3>📊 Evolución de Ingresos y Gastos</h3>
+                    <div class="group-selector">
+                        <button class="group-btn ${agrupacionActual === 'dia' ? 'active' : ''}" data-group="dia" onclick="cambiarAgrupacionReportes('dia')">Por día</button>
+                        <button class="group-btn ${agrupacionActual === 'semana' ? 'active' : ''}" data-group="semana" onclick="cambiarAgrupacionReportes('semana')">Por semana</button>
+                        <button class="group-btn ${agrupacionActual === 'mes' ? 'active' : ''}" data-group="mes" onclick="cambiarAgrupacionReportes('mes')">Por mes</button>
+                    </div>
+                    <canvas id="graficoBarrasDinamico" style="max-height: 300px;"></canvas>
+                </div>
+            `;
+        }
+
+        // --- Subsección: Balance por categorías (pastel con selector de tipo y período) ---
+        function renderCategorias() {
+            const labelPeriodo = periodoCategorias === 'hoy' ? 'Hoy' : (periodoCategorias === 'semana' ? 'Semana' : 'Mes');
+            const labelTipo = tipoCategorias === 'ingreso' ? 'Ingresos' : 'Gastos';
+            return `
+                <div class="chart-card">
+                    <h3>Distribución de ${labelTipo} (${labelPeriodo})</h3>
+                    <div class="group-selector" style="margin-bottom: 12px;">
+                        <button class="group-btn ${periodoCategorias === 'hoy' ? 'active' : ''}" data-periodo-cat="hoy" onclick="cambiarPeriodoCategoriasUI('hoy')">Hoy</button>
+                        <button class="group-btn ${periodoCategorias === 'semana' ? 'active' : ''}" data-periodo-cat="semana" onclick="cambiarPeriodoCategoriasUI('semana')">Semana</button>
+                        <button class="group-btn ${periodoCategorias === 'mes' ? 'active' : ''}" data-periodo-cat="mes" onclick="cambiarPeriodoCategoriasUI('mes')">Mes</button>
+                    </div>
+                    <div class="group-selector" style="margin-bottom: 20px;">
+                        <button class="group-btn ${tipoCategorias === 'ingreso' ? 'active' : ''}" data-tipo-cat="ingreso" onclick="cambiarTipoCategoriasUI('ingreso')">💰 Ingresos</button>
+                        <button class="group-btn ${tipoCategorias === 'gasto' ? 'active' : ''}" data-tipo-cat="gasto" onclick="cambiarTipoCategoriasUI('gasto')">💸 Gastos</button>
+                    </div>
+                    <canvas id="graficoPastelCategorias" style="max-height: 280px;"></canvas>
+                </div>
+            `;
+        }
+
+        // Función principal que renderiza toda la vista de reportes con sus pestañas
+        function renderReportes() {
+            let contenido = '';
+            if (subSeccionReportes === 'balance') contenido = renderBalance();
+            else if (subSeccionReportes === 'evolucion') contenido = renderEvolucion();
+            else if (subSeccionReportes === 'categorias') contenido = renderCategorias();
+
+            return `
+                <div class="submenu-tabs">
+                    <button class="submenu-tab ${subSeccionReportes === 'balance' ? 'active' : ''}" onclick="cambiarSubSeccion('balance')"> Balance</button>
+                    <button class="submenu-tab ${subSeccionReportes === 'evolucion' ? 'active' : ''}" onclick="cambiarSubSeccion('evolucion')">Gráfico</button>
+                    <button class="submenu-tab ${subSeccionReportes === 'categorias' ? 'active' : ''}" onclick="cambiarSubSeccion('categorias')">Categorías</button>
+                </div>
+                ${contenido}
+            `;
+        }
+
+        // Funciones para cambiar subsección y actualizar
+        function cambiarSubSeccion(seccion) {
+            subSeccionReportes = seccion;
+            renderizarVistaActual(); // volver a renderizar reportes
+        }
+        // Funciones específicas para cada subsección (para que al cambiar se actualicen los gráficos)
+        function cambiarPeriodoBalance(periodo) {
+            periodoBalance = periodo;
+            if (subSeccionReportes === 'balance') renderizarVistaActual();
+        }
+        function cambiarAgrupacionReportes(tipo) {
+            agrupacionActual = tipo;
+            if (subSeccionReportes === 'evolucion') {
+                actualizarGraficoBarrasDinamico();
+                // Actualizar clases de botones (ya se hará en el re-render? pero mejor actualizar solo el gráfico)
+                // Para mantener la interfaz consistente, volvemos a renderizar la subsección actual.
+                renderizarVistaActual();
+            }
+        }
+        function cambiarPeriodoCategoriasUI(periodo) {
+            periodoCategorias = periodo;
+            if (subSeccionReportes === 'categorias') {
+                actualizarGraficoCategorias();
+                // Volver a renderizar para actualizar clases y título
+                renderizarVistaActual();
+            }
+        }
+        function cambiarTipoCategoriasUI(tipo) {
+            tipoCategorias = tipo;
+            if (subSeccionReportes === 'categorias') {
+                actualizarGraficoCategorias();
+                renderizarVistaActual();
+            }
+        }
+
+        // ==================== DASHBOARD, MOVIMIENTOS, PRESUPUESTOS (sin cambios importantes) ====================
         function renderDashboard() {
             const stats = obtenerEstadisticasPorPeriodo(periodoActual);
             const totalBalance = getTotalBalance();
-            
             return `
-                <div class="balance-card">
-                    <div class="balance-label">BALANCE TOTAL</div>
-                    <div class="balance-total">${formatearMontoVisual(totalBalance)} Bs</div>
-                </div>
-                
-                <div class="period-tabs">
-                    <button class="period-btn ${periodoActual === 'hoy' ? 'active' : ''}" onclick="cambiarPeriodo('hoy')">📅 Hoy</button>
-                    <button class="period-btn ${periodoActual === 'semana' ? 'active' : ''}" onclick="cambiarPeriodo('semana')">📆 7 Días</button>
-                    <button class="period-btn ${periodoActual === 'mes' ? 'active' : ''}" onclick="cambiarPeriodo('mes')">📅 30 Días</button>
-                </div>
-                
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <div class="stat-card-title">Ingresos</div>
-                        <div class="stat-card-income">+${formatearMontoVisual(stats.ingresos)} Bs</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Gastos</div>
-                        <div class="stat-card-expense">-${formatearMontoVisual(stats.gastos)} Bs</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Balance</div>
-                        <div class="stat-card-balance">${formatearMontoVisual(stats.balance)} Bs</div>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="form-title">➕ Nuevo movimiento</div>
-                    <form id="movimientoForm">
-                        <div class="form-group">
-                            <label>Tipo</label>
-                            <select id="tipo" required>
-                                <option value="ingreso">💰 Ingreso</option>
-                                <option value="gasto">💸 Gasto</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Monto (Bs)</label>
-                            <input type="text" id="monto" required placeholder="Ej: 1.234,56">
-                        </div>
-                        <div class="form-group">
-                            <label>Descripción</label>
-                            <input type="text" id="descripcion" required placeholder="Ej: Sueldo, Comida...">
-                        </div>
-                        <div class="form-group">
-                            <label>Categoría</label>
-                            <select id="categoria" required></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha</label>
-                            <input type="date" id="fecha" required>
-                        </div>
-                        <button type="submit" class="btn-primary">✅ Guardar movimiento</button>
-                    </form>
-                </div>
-                
-                <div class="movements-list">
-                    <div class="form-title">📋 Últimos movimientos</div>
-                    <div id="ultimosMovimientos">${renderMovimientosLista([...movimientos].reverse().slice(0, 10))}</div>
-                </div>
+                <div class="balance-card"><div class="balance-label">BALANCE TOTAL</div><div class="balance-total">${formatearMontoVisual(totalBalance)} Bs</div></div>
+                <div class="period-tabs"><button class="period-btn ${periodoActual === 'hoy' ? 'active' : ''}" onclick="cambiarPeriodoDashboard('hoy')">📅 Hoy</button><button class="period-btn ${periodoActual === 'semana' ? 'active' : ''}" onclick="cambiarPeriodoDashboard('semana')">📆 7 Días</button><button class="period-btn ${periodoActual === 'mes' ? 'active' : ''}" onclick="cambiarPeriodoDashboard('mes')">📅 30 Días</button></div>
+                <div class="stats-cards"><div class="stat-card"><div class="stat-card-title">Ingresos</div><div class="stat-card-income">+${formatearMontoVisual(stats.ingresos)} Bs</div></div><div class="stat-card"><div class="stat-card-title">Gastos</div><div class="stat-card-expense">-${formatearMontoVisual(stats.gastos)} Bs</div></div><div class="stat-card"><div class="stat-card-title">Balance</div><div class="stat-card-balance">${formatearMontoVisual(stats.balance)} Bs</div></div></div>
+                <div class="form-section"><div class="form-title">➕ Nuevo movimiento</div><form id="movimientoForm"><div class="form-group"><label>Tipo</label><select id="tipo" required><option value="ingreso">💰 Ingreso</option><option value="gasto">💸 Gasto</option></select></div><div class="form-group"><label>Monto (Bs)</label><input type="text" id="monto" required placeholder="Ej: 1.234,56"></div><div class="form-group"><label>Descripción</label><input type="text" id="descripcion" required placeholder="Ej: Sueldo, Comida..."></div><div class="form-group"><label>Categoría</label><select id="categoria" required></select></div><div class="form-group"><label>Fecha</label><input type="date" id="fecha" required></div><button type="submit" class="btn-primary">✅ Guardar movimiento</button></form></div>
+                <div class="movements-list"><div class="form-title">📋 Últimos movimientos</div><div id="ultimosMovimientos">${renderMovimientosLista([...movimientos].reverse().slice(0,10))}</div></div>
             `;
         }
-
         function renderMovimientos() {
-            return `
-                <div class="form-section">
-                    <div class="form-title">🔍 Filtros</div>
-                    <div class="filters-grid">
-                        <input type="date" id="filtroFechaInicio" placeholder="Fecha inicio">
-                        <input type="date" id="filtroFechaFin" placeholder="Fecha fin">
-                        <select id="filtroTipo">
-                            <option value="">Todos</option>
-                            <option value="ingreso">Ingresos</option>
-                            <option value="gasto">Gastos</option>
-                        </select>
-                        <select id="filtroCategoria"></select>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="btn-secondary" onclick="aplicarFiltros()">🔍 Aplicar filtros</button>
-                            <button class="btn-secondary" onclick="limpiarFiltros()">🗑️ Limpiar</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="movements-list">
-                    <div id="todosMovimientos">${renderMovimientosLista(movimientos)}</div>
-                </div>
-            `;
+            return `<div class="form-section"><div class="form-title">🔍 Filtros</div><div class="filters-grid"><input type="date" id="filtroFechaInicio" placeholder="Fecha inicio"><input type="date" id="filtroFechaFin" placeholder="Fecha fin"><select id="filtroTipo"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="gasto">Gastos</option></select><select id="filtroCategoria"></select><div style="display:flex;gap:10px;"><button class="btn-secondary" onclick="aplicarFiltros()">🔍 Aplicar filtros</button><button class="btn-secondary" onclick="limpiarFiltros()">🗑️ Limpiar</button></div></div></div><div class="movements-list"><div id="todosMovimientos">${renderMovimientosLista(movimientos)}</div></div>`;
         }
-
-        function renderReportes() {
-            const totalIngresos = movimientos.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0);
-            const totalGastos = movimientos.filter(m => m.tipo === 'gasto').reduce((s, m) => s + m.monto, 0);
-            
-            return `
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <div class="stat-card-title">Total Ingresos</div>
-                        <div class="stat-card-income">+${formatearMontoVisual(totalIngresos)} Bs</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Total Gastos</div>
-                        <div class="stat-card-expense">-${formatearMontoVisual(totalGastos)} Bs</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-title">Balance Neto</div>
-                        <div class="stat-card-balance">${formatearMontoVisual(totalIngresos - totalGastos)} Bs</div>
-                    </div>
-                </div>
-                <div class="charts-grid">
-                    <div class="chart-card">
-                        <h3>Distribución de Gastos</h3>
-                        <canvas id="graficoPastelGastos"></canvas>
-                    </div>
-                    <div class="chart-card">
-                        <h3>Distribución de Ingresos</h3>
-                        <canvas id="graficoPastelIngresos"></canvas>
-                    </div>
-                </div>
-            `;
-        }
-
         function renderPresupuestos() {
-            return `
-                <div class="form-section">
-                    <div class="form-title">🎯 Presupuestos mensuales</div>
-                    <div id="listaPresupuestos">${renderListaPresupuestos()}</div>
-                    <div class="form-group" style="margin-top: 24px;">
-                        <label>Configurar presupuesto</label>
-                        <div style="display: flex; gap: 12px;">
-                            <select id="selectCategoriaPresupuesto" style="flex: 2;"></select>
-                            <input type="number" id="montoPresupuesto" step="0.01" placeholder="Monto" style="flex: 1;">
-                            <button class="btn-primary" onclick="guardarPresupuesto()" style="flex: 0;">Guardar</button>
-                        </div>
-                    </div>
-                </div>
-            `;
+            return `<div class="form-section"><div class="form-title">🎯 Presupuestos mensuales</div><div id="listaPresupuestos">${renderListaPresupuestos()}</div><div class="form-group" style="margin-top:24px;"><label>Configurar presupuesto</label><div style="display:flex;gap:12px;"><select id="selectCategoriaPresupuesto" style="flex:2;"></select><input type="number" id="montoPresupuesto" step="0.01" placeholder="Monto" style="flex:1;"><button class="btn-primary" onclick="guardarPresupuesto()" style="flex:0;">Guardar</button></div></div></div>`;
         }
-
         function renderMovimientosLista(lista) {
             if (lista.length === 0) return '<div class="empty-state">No hay movimientos registrados</div>';
-            return lista.map(m => `
-                <div class="movement-item">
-                    <div class="movement-info">
-                        <div class="movement-desc">${m.descripcion}</div>
-                        <div class="movement-cat">📌 ${m.categoria}</div>
-                        <div class="movement-date">📅 ${m.fecha}</div>
-                    </div>
-                    <div class="movement-amount ${m.tipo === 'ingreso' ? 'income' : 'expense'}">
-                        ${m.tipo === 'ingreso' ? '+' : '-'} ${formatearMontoVisual(m.monto)} Bs
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-edit" onclick="abrirModalEditar(${m.id})">✏️</button>
-                        <button class="btn-delete" onclick="eliminarMovimiento(${m.id})">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
+            return lista.map(m => `<div class="movement-item"><div class="movement-info"><div class="movement-desc">${m.descripcion}</div><div class="movement-cat">📌 ${m.categoria}</div><div class="movement-date">📅 ${m.fecha}</div></div><div class="movement-amount ${m.tipo === 'ingreso' ? 'income' : 'expense'}">${m.tipo === 'ingreso' ? '+' : '-'} ${formatearMontoVisual(m.monto)} Bs</div><div class="action-buttons"><button class="btn-edit" onclick="abrirModalEditar(${m.id})">✏️</button><button class="btn-delete" onclick="eliminarMovimiento(${m.id})">🗑️</button></div></div>`).join('');
         }
-
         function renderListaPresupuestos() {
             const mesActual = new Date().getMonth();
             const anioActual = new Date().getFullYear();
             const gastosMes = {};
             categorias.gasto.forEach(c => gastosMes[c] = 0);
-            movimientos.forEach(m => {
-                if (m.tipo === 'gasto') {
-                    const fecha = new Date(m.fecha);
-                    if (fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual) gastosMes[m.categoria] += m.monto;
-                }
-            });
-            
-            if (categorias.gasto.length === 0) return '<div class="empty-state">No hay categorías</div>';
-            return categorias.gasto.map(cat => {
-                const presupuesto = presupuestos[cat] || 0;
-                const gastado = gastosMes[cat] || 0;
-                const porcentaje = presupuesto > 0 ? (gastado / presupuesto) * 100 : 0;
-                const isWarning = porcentaje > 80;
-                return `
-                    <div class="budget-item">
-                        <div class="budget-info">
-                            <div class="budget-name">${cat}</div>
-                            <div class="budget-spent">Gastado: ${formatearMontoVisual(gastado)} Bs</div>
-                        </div>
-                        <div class="budget-bar-container">
-                            <div class="budget-bar">
-                                <div class="budget-bar-fill ${isWarning ? 'warning' : ''}" style="width: ${Math.min(porcentaje, 100)}%"></div>
-                            </div>
-                        </div>
-                        <div class="budget-amount">${formatearMontoVisual(presupuesto)} Bs</div>
-                    </div>
-                `;
-            }).join('');
+            movimientos.forEach(m => { if (m.tipo === 'gasto') { const f = new Date(m.fecha); if (f.getMonth() === mesActual && f.getFullYear() === anioActual) gastosMes[m.categoria] += m.monto; } });
+            return categorias.gasto.map(cat => { const pres = presupuestos[cat] || 0; const gastado = gastosMes[cat] || 0; const porc = pres > 0 ? (gastado / pres) * 100 : 0; const warn = porc > 80; return `<div class="budget-item"><div class="budget-info"><div class="budget-name">${cat}</div><div class="budget-spent">Gastado: ${formatearMontoVisual(gastado)} Bs</div></div><div class="budget-bar-container"><div class="budget-bar"><div class="budget-bar-fill ${warn ? 'warning' : ''}" style="width:${Math.min(porc,100)}%"></div></div></div><div class="budget-amount">${formatearMontoVisual(pres)} Bs</div></div>`; }).join('');
         }
 
-        function actualizarGraficos() {
-            const gastosPorCategoria = {};
-            const ingresosPorCategoria = {};
-            categorias.gasto.forEach(c => gastosPorCategoria[c] = 0);
-            categorias.ingreso.forEach(c => ingresosPorCategoria[c] = 0);
-            movimientos.forEach(m => {
-                if (m.tipo === 'gasto') gastosPorCategoria[m.categoria] += m.monto;
-                else ingresosPorCategoria[m.categoria] += m.monto;
-            });
-            
-            const gastosLabels = Object.keys(gastosPorCategoria).filter(c => gastosPorCategoria[c] > 0);
-            const gastosData = gastosLabels.map(c => gastosPorCategoria[c]);
-            const ingresosLabels = Object.keys(ingresosPorCategoria).filter(c => ingresosPorCategoria[c] > 0);
-            const ingresosData = ingresosLabels.map(c => ingresosPorCategoria[c]);
-            
-            if (chartGastos) chartGastos.destroy();
-            if (chartIngresos) chartIngresos.destroy();
-            
-            const ctxGastos = document.getElementById('graficoPastelGastos');
-            const ctxIngresos = document.getElementById('graficoPastelIngresos');
-            
-            if (ctxGastos) {
-                chartGastos = new Chart(ctxGastos, {
-                    type: 'pie', data: { labels: gastosLabels, datasets: [{ data: gastosData, backgroundColor: ['#dc3545','#fd7e14','#28a745','#17a2b8','#6f42c1','#20c997'] }] },
-                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-                });
-            }
-            if (ctxIngresos) {
-                chartIngresos = new Chart(ctxIngresos, {
-                    type: 'pie', data: { labels: ingresosLabels, datasets: [{ data: ingresosData, backgroundColor: ['#28a745','#20c997','#17a2b8'] }] },
-                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-                });
-            }
-        }
-
-        // ==================== FUNCIONES DEL MENÚ ====================
-        function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-            
-            // Prevenir scroll cuando el menú está abierto
-            if (sidebar.classList.contains('open')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        }
-
-        function cerrarMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            
-            sidebar.classList.remove('open');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        function cerrarYCambiarVista(vista) {
-            cerrarMenu();
-            cambiarVista(vista);
-        }
-
-        // ==================== EVENT HANDLERS ====================
+        // ==================== EVENT HANDLERS DE CADA VISTA ====================
         function attachDashboardEvents() {
             const form = document.getElementById('movimientoForm');
             if (form) {
                 const newForm = form.cloneNode(true);
                 form.parentNode.replaceChild(newForm, form);
-                
                 newForm.onsubmit = (e) => {
                     e.preventDefault();
-                    
-                    const montoText = document.getElementById('monto').value;
-                    const monto = convertirTextoAMonto(montoText);
-                    
-                    if (isNaN(monto) || monto <= 0) { 
-                        alert('❌ Ingresa un monto válido mayor a cero\nEjemplos: 1000, 1.500,75 o 1394,94'); 
-                        return; 
-                    }
-                    
+                    const monto = convertirTextoAMonto(document.getElementById('monto').value);
+                    if (isNaN(monto) || monto <= 0) { alert('❌ Ingresa un monto válido'); return; }
                     const descripcion = document.getElementById('descripcion').value.trim();
-                    if (!descripcion) {
-                        alert('❌ Ingresa una descripción');
-                        return;
-                    }
-                    
+                    if (!descripcion) { alert('❌ Ingresa una descripción'); return; }
                     const categoria = document.getElementById('categoria').value;
-                    if (!categoria) {
-                        alert('❌ Selecciona una categoría');
-                        return;
-                    }
-                    
-                    const nuevoMovimiento = {
-                        id: Date.now(),
-                        tipo: document.getElementById('tipo').value,
-                        monto: monto,
-                        descripcion: descripcion,
-                        categoria: categoria,
-                        fecha: document.getElementById('fecha').value || new Date().toISOString().split('T')[0]
-                    };
-                    
+                    if (!categoria) { alert('❌ Selecciona una categoría'); return; }
+                    const nuevoMovimiento = { id: Date.now(), tipo: document.getElementById('tipo').value, monto, descripcion, categoria, fecha: document.getElementById('fecha').value || new Date().toISOString().split('T')[0] };
                     movimientos.push(nuevoMovimiento);
                     guardarDatos();
                     renderizarVistaActual();
                     alert('✅ Movimiento guardado');
                 };
             }
-            
             const tipoSelect = document.getElementById('tipo');
             if (tipoSelect) {
-                tipoSelect.onchange = () => {
-                    const tipo = tipoSelect.value;
-                    const selectCat = document.getElementById('categoria');
-                    let opciones = tipo === 'ingreso' ? categorias.ingreso : categorias.gasto;
-                    selectCat.innerHTML = '';
-                    opciones.forEach(cat => selectCat.innerHTML += `<option value="${cat}">${cat}</option>`);
-                };
+                tipoSelect.onchange = () => { const tipo = tipoSelect.value; const selectCat = document.getElementById('categoria'); let opciones = tipo === 'ingreso' ? categorias.ingreso : categorias.gasto; selectCat.innerHTML = ''; opciones.forEach(cat => selectCat.innerHTML += `<option value="${cat}">${cat}</option>`); };
             }
-            
             const fechaInput = document.getElementById('fecha');
-            if (fechaInput && !fechaInput.value) {
-                fechaInput.value = new Date().toISOString().split('T')[0];
-            }
-            
+            if (fechaInput && !fechaInput.value) fechaInput.value = new Date().toISOString().split('T')[0];
             const montoInput = document.getElementById('monto');
-            if (montoInput) {
-                montoInput.addEventListener('blur', function() {
-                    const valor = convertirTextoAMonto(this.value);
-                    if (valor > 0) {
-                        this.value = formatearMontoVisual(valor);
-                    }
-                });
-            }
+            if (montoInput) montoInput.addEventListener('blur', function() { const valor = convertirTextoAMonto(this.value); if (valor > 0) this.value = formatearMontoVisual(valor); });
         }
-
-        function attachMovimientosEvents() {
-            actualizarSelects();
-            setTimeout(() => aplicarFiltros(), 50);
-        }
-
+        function attachMovimientosEvents() { actualizarSelects(); setTimeout(() => aplicarFiltros(), 50); }
         function attachReportesEvents() {
-            actualizarGraficos();
+            if (subSeccionReportes === 'evolucion') actualizarGraficoBarrasDinamico();
+            else if (subSeccionReportes === 'categorias') actualizarGraficoCategorias();
+            // Para la subsección balance no requiere gráfico
         }
-
-        function attachPresupuestosEvents() {
-            actualizarSelects();
-        }
-
+        function attachPresupuestosEvents() { actualizarSelects(); }
         function aplicarFiltros() {
             let filtrados = [...movimientos];
             const inicio = document.getElementById('filtroFechaInicio')?.value;
             const fin = document.getElementById('filtroFechaFin')?.value;
             const tipo = document.getElementById('filtroTipo')?.value;
             const categoria = document.getElementById('filtroCategoria')?.value;
-            
             if (inicio) filtrados = filtrados.filter(m => m.fecha >= inicio);
             if (fin) filtrados = filtrados.filter(m => m.fecha <= fin);
             if (tipo) filtrados = filtrados.filter(m => m.tipo === tipo);
             if (categoria) filtrados = filtrados.filter(m => m.categoria === categoria);
-            
-            filtrados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-            
+            filtrados.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
             const container = document.getElementById('todosMovimientos');
-            if (container) {
-                container.innerHTML = renderMovimientosLista(filtrados);
-            }
+            if (container) container.innerHTML = renderMovimientosLista(filtrados);
         }
-
         function limpiarFiltros() {
             const inicio = document.getElementById('filtroFechaInicio');
             const fin = document.getElementById('filtroFechaFin');
             const tipo = document.getElementById('filtroTipo');
             const categoria = document.getElementById('filtroCategoria');
-            if (inicio) inicio.value = '';
-            if (fin) fin.value = '';
-            if (tipo) tipo.value = '';
-            if (categoria) categoria.value = '';
+            if (inicio) inicio.value = ''; if (fin) fin.value = ''; if (tipo) tipo.value = ''; if (categoria) categoria.value = '';
             aplicarFiltros();
         }
-
         function eliminarMovimiento(id) {
-            if (confirm('¿Eliminar este movimiento?')) {
-                movimientos = movimientos.filter(m => m.id !== id);
-                guardarDatos();
-                renderizarVistaActual();
-            }
+            if (confirm('¿Eliminar este movimiento?')) { movimientos = movimientos.filter(m => m.id !== id); guardarDatos(); renderizarVistaActual(); }
         }
-
         function abrirModalEditar(id) {
-            const m = movimientos.find(m => m.id === id);
-            if (!m) return;
-            
+            const m = movimientos.find(m => m.id === id); if (!m) return;
             document.getElementById('editId').value = m.id;
             document.getElementById('editTipo').value = m.tipo;
             document.getElementById('editMonto').value = formatearMontoVisual(m.monto);
             document.getElementById('editDescripcion').value = m.descripcion;
             document.getElementById('editFecha').value = m.fecha;
-            
             actualizarSelectEditCategoria(m.tipo);
             document.getElementById('editCategoria').value = m.categoria;
-            
             const editTipoSelect = document.getElementById('editTipo');
             const oldListener = editTipoSelect._listener;
             if (oldListener) editTipoSelect.removeEventListener('change', oldListener);
-            
-            const newListener = function() {
-                actualizarSelectEditCategoria(this.value);
-            };
+            const newListener = function() { actualizarSelectEditCategoria(this.value); };
             editTipoSelect.addEventListener('change', newListener);
             editTipoSelect._listener = newListener;
-            
             document.getElementById('editModal').style.display = 'flex';
         }
-
-        function cerrarModal() { 
-            document.getElementById('editModal').style.display = 'none'; 
-        }
-
+        function cerrarModal() { document.getElementById('editModal').style.display = 'none'; }
         document.getElementById('editForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            
-            const montoText = document.getElementById('editMonto').value;
-            const monto = convertirTextoAMonto(montoText);
-            
-            if (isNaN(monto) || monto <= 0) {
-                alert('❌ El monto debe ser mayor a cero');
-                return;
-            }
-            
+            const monto = convertirTextoAMonto(document.getElementById('editMonto').value);
+            if (isNaN(monto) || monto <= 0) { alert('❌ El monto debe ser mayor a cero'); return; }
             const id = parseInt(document.getElementById('editId').value);
-            const index = movimientos.findIndex(m => m.id === id);
-            if (index !== -1) {
-                movimientos[index] = {
-                    id: id,
-                    tipo: document.getElementById('editTipo').value,
-                    monto: monto,
-                    descripcion: document.getElementById('editDescripcion').value,
-                    categoria: document.getElementById('editCategoria').value,
-                    fecha: document.getElementById('editFecha').value
-                };
-                guardarDatos();
-                renderizarVistaActual();
-                cerrarModal();
-                alert('✅ Movimiento actualizado');
+            const idx = movimientos.findIndex(m => m.id === id);
+            if (idx !== -1) {
+                movimientos[idx] = { id, tipo: document.getElementById('editTipo').value, monto, descripcion: document.getElementById('editDescripcion').value, categoria: document.getElementById('editCategoria').value, fecha: document.getElementById('editFecha').value };
+                guardarDatos(); renderizarVistaActual(); cerrarModal(); alert('✅ Movimiento actualizado');
             }
         });
-
         function guardarPresupuesto() {
             const categoria = document.getElementById('selectCategoriaPresupuesto')?.value;
             const monto = parseFloat(document.getElementById('montoPresupuesto')?.value);
-            if (!categoria) { 
-                alert('❌ Selecciona una categoría'); 
-                return; 
-            }
-            if (!monto || monto < 0) { 
-                alert('❌ Ingresa un monto válido'); 
-                return; 
-            }
-            presupuestos[categoria] = monto;
-            guardarDatos();
-            renderizarVistaActual();
-            alert(`✅ Presupuesto para "${categoria}" guardado: ${formatearMontoVisual(monto)} Bs`);
+            if (!categoria) { alert('❌ Selecciona una categoría'); return; }
+            if (!monto || monto < 0) { alert('❌ Ingresa un monto válido'); return; }
+            presupuestos[categoria] = monto; guardarDatos(); renderizarVistaActual(); alert(`✅ Presupuesto para "${categoria}" guardado: ${formatearMontoVisual(monto)} Bs`);
         }
-
-        // ==================== NAVEGACIÓN ====================
-        function cambiarVista(vista) {
-            vistaActual = vista;
-            periodoActual = 'hoy';
-            renderizarVistaActual();
-        }
-
-        function cambiarPeriodo(periodo) {
-            periodoActual = periodo;
-            renderizarVistaActual();
-        }
-
-        function abrirModalAgregarRapido() {
-            if (vistaActual !== 'dashboard') {
-                cambiarVista('dashboard');
-            }
-            setTimeout(() => {
-                document.getElementById('movimientoForm')?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-        }
-
-        // ==================== EXPORTAR/IMPORTAR ====================
+        function cambiarPeriodoDashboard(periodo) { periodoActual = periodo; renderizarVistaActual(); }
+        function cambiarVista(vista) { vistaActual = vista; periodoActual = 'hoy'; renderizarVistaActual(); }
+        function abrirModalAgregarRapido() { if (vistaActual !== 'dashboard') cambiarVista('dashboard'); setTimeout(() => document.getElementById('movimientoForm')?.scrollIntoView({ behavior: 'smooth' }), 100); }
         function exportarJSON() {
-            const data = JSON.stringify({ movimientos, presupuestos, version: "1.0", fechaExportacion: new Date().toISOString() }, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `finanzas_backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(a.href);
-            alert('✅ Datos exportados exitosamente');
+            const data = JSON.stringify({ movimientos, presupuestos, version: "3.0", fechaExportacion: new Date().toISOString() }, null, 2);
+            const blob = new Blob([data], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `finanzas_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(a.href); alert('✅ Datos exportados');
         }
-
         function importarJSONPrompt() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    try {
-                        const data = JSON.parse(ev.target.result);
-                        if (data.movimientos) movimientos = data.movimientos;
-                        if (data.presupuestos) presupuestos = data.presupuestos;
-                        guardarDatos();
-                        renderizarVistaActual();
-                        alert('✅ Datos importados exitosamente');
-                    } catch (error) {
-                        alert('❌ Error al leer el archivo: formato JSON inválido');
-                    }
-                };
-                reader.readAsText(file);
-            };
+            const input = document.createElement('input'); input.type = 'file'; input.accept = '.json';
+            input.onchange = (e) => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if (data.movimientos) movimientos = data.movimientos; if (data.presupuestos) presupuestos = data.presupuestos; guardarDatos(); renderizarVistaActual(); alert('✅ Datos importados'); } catch(e) { alert('❌ Error JSON'); } }; reader.readAsText(file); };
             input.click();
         }
+        function abrirAcerca() { document.getElementById('acercaModal').style.display = 'flex'; }
+        function cerrarAcercaModal() { document.getElementById('acercaModal').style.display = 'none'; }
+        function toggleMenu() { const s=document.getElementById('sidebar'); const o=document.getElementById('overlay'); s.classList.toggle('open'); o.classList.toggle('active'); document.body.style.overflow = s.classList.contains('open')?'hidden':''; }
+        function cerrarMenu() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); document.body.style.overflow = ''; }
+        function cerrarYCambiarVista(vista) { cerrarMenu(); cambiarVista(vista); }
 
-        function abrirAcerca() { 
-            document.getElementById('acercaModal').style.display = 'flex'; 
-        }
-        
-        function cerrarAcercaModal() { 
-            document.getElementById('acercaModal').style.display = 'none'; 
-        }
-
-        // ==================== INICIALIZACIÓN ====================
-        window.onclick = (event) => { 
-            if (event.target === document.getElementById('editModal')) cerrarModal();
-            if (event.target === document.getElementById('acercaModal')) cerrarAcercaModal();
-            // El overlay ya maneja su propio clic
-        };
-        
+        // Exponer funciones globales
         window.cambiarVista = cambiarVista;
-        window.cambiarPeriodo = cambiarPeriodo;
+        window.cambiarPeriodoDashboard = cambiarPeriodoDashboard;
         window.toggleMenu = toggleMenu;
         window.cerrarMenu = cerrarMenu;
         window.cerrarYCambiarVista = cerrarYCambiarVista;
@@ -1426,9 +1260,14 @@
         window.cerrarAcercaModal = cerrarAcercaModal;
         window.abrirModalAgregarRapido = abrirModalAgregarRapido;
         window.actualizarSelectEditCategoria = actualizarSelectEditCategoria;
-        window.renderizarVistaActual = renderizarVistaActual;
         window.formatearMontoVisual = formatearMontoVisual;
-        
+        // Nuevas funciones de reportes
+        window.cambiarSubSeccion = cambiarSubSeccion;
+        window.cambiarPeriodoBalance = cambiarPeriodoBalance;
+        window.cambiarAgrupacionReportes = cambiarAgrupacionReportes;
+        window.cambiarPeriodoCategoriasUI = cambiarPeriodoCategoriasUI;
+        window.cambiarTipoCategoriasUI = cambiarTipoCategoriasUI;
+
         cargarDatos();
     </script>
 </body>
