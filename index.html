@@ -724,10 +724,38 @@
         // ==================== FUNCIONES BASE ====================
         function formatearMontoVisual(v) { return (isNaN(v) || v===null) ? '0,00' : v.toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2}); }
         function convertirTextoAMonto(t) { if(!t) return 0; let n = parseFloat(t.toString().replace(/\./g,'').replace(',','.')); return isNaN(n)?0:n; }
-        function getWeekNumber(d) { let date = new Date(d); let start = new Date(date.getFullYear(),0,1); let days = Math.floor((date-start)/86400000); return Math.ceil((days+start.getDay()+1)/7); }
-        function esMismaFecha(f1,f2) { return f1===f2; }
-        function mismaSemana(f1,f2) { let d1=new Date(f1), d2=new Date(f2); return d1.getFullYear()===d2.getFullYear() && getWeekNumber(f1)===getWeekNumber(f2); }
-        function mismoMes(f1,f2) { let d1=new Date(f1), d2=new Date(f2); return d1.getFullYear()===d2.getFullYear() && d1.getMonth()===d2.getMonth(); }
+
+        // ---------- FUNCIONES DE FECHA CORREGIDAS (robustas) ----------
+        function normalizarFecha(fechaStr) {
+            // Convierte cualquier cadena de fecha a YYYY-MM-DD
+            let fecha = new Date(fechaStr);
+            return fecha.toISOString().split('T')[0];
+        }
+
+        function esMismaFecha(f1, f2) {
+            return normalizarFecha(f1) === normalizarFecha(f2);
+        }
+
+        function mismaSemana(f1, f2) {
+            let d1 = new Date(f1);
+            let d2 = new Date(f2);
+            // Obtener el número de semana (ISO)
+            function getWeek(date) {
+                let d = new Date(date);
+                d.setHours(0, 0, 0, 0);
+                d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+                let yearStart = new Date(d.getFullYear(), 0, 1);
+                return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            }
+            return d1.getFullYear() === d2.getFullYear() && getWeek(d1) === getWeek(d2);
+        }
+
+        function mismoMes(f1, f2) {
+            let d1 = new Date(f1);
+            let d2 = new Date(f2);
+            return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
+        }
+        // -------------------------------------------------------------
 
         // ==================== CRUD ====================
         function cargarDatos() {
@@ -736,11 +764,11 @@
             else {
                 const hoy = new Date().toISOString().split('T')[0];
                 movimientos = [
-                    { id: Date.now(), tipo: 'ingreso', monto: 1200, descripcion: 'Sueldo mensual', categoria: 'Sueldo', fecha: hoy },
-                    { id: Date.now()+1, tipo: 'gasto', monto: 60, descripcion: 'Supermercado', categoria: 'Comida', fecha: hoy },
-                    { id: Date.now()+2, tipo: 'gasto', monto: 100, descripcion: 'Diezmo', categoria: 'Dios', fecha: hoy }
+                    { id: Date.now(), tipo: 'ingreso', monto: 000, descripcion: 'Sueldo mensual', categoria: 'Sueldo', fecha: hoy },
+                    { id: Date.now()+1, tipo: 'gasto', monto: 000, descripcion: 'Supermercado', categoria: 'Comida', fecha: hoy },
+                    { id: Date.now()+2, tipo: 'gasto', monto: 000 , descripcion: 'Diezmo', categoria: 'Dios', fecha: hoy }
                 ];
-                presupuestos = { 'Comida': 300, 'Familia': 200, 'Inversión': 150, 'Dios': 100, 'Personal': 200, 'Otro': 100 };
+                presupuestos = { 'Comida': 000, 'Familia': 000, 'Inversión': 000, 'Dios': 000, 'Personal': 000, 'Otro': 000 };
             }
             renderizarVistaActual();
             actualizarSelects();
@@ -804,10 +832,18 @@
         }
         function obtenerDatosSemanales() {
             const hoy = new Date(), hoyStr = hoy.toISOString().split('T')[0];
-            let semanaAct = getWeekNumber(hoyStr), añoAct = hoy.getFullYear();
+            // Usamos la función mismaSemana para calcular el número de semana de forma consistente
+            function getWeekNumber(dateStr) {
+                let d = new Date(dateStr);
+                d.setHours(0,0,0,0);
+                d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+                let yearStart = new Date(d.getFullYear(), 0, 1);
+                return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            }
+            let semanaActual = getWeekNumber(hoyStr), añoActual = hoy.getFullYear();
             let labels=[], ingD=[], gasD=[];
             for(let i=4;i>=0;i--){
-                let sem = semanaAct-i, año = añoAct;
+                let sem = semanaActual-i, año = añoActual;
                 if(sem<=0){ año--; let finAño = new Date(año,11,31); sem += getWeekNumber(finAño.toISOString().split('T')[0]); }
                 labels.push(`S${sem} ${año}`);
                 let ing=0, gas=0;
@@ -983,7 +1019,7 @@
             let opts = tipo.value==='ingreso'?categorias.ingreso:categorias.gasto;
             cat.innerHTML=''; opts.forEach(c=>cat.innerHTML+=`<option value="${c}">${c}</option>`);
             document.getElementById('modalFecha').value = new Date().toLocaleDateString('en-CA');
- document.getElementById('modalMonto').value='';
+            document.getElementById('modalMonto').value='';
             document.getElementById('modalDescripcion').value='';
             modal.style.display='flex';
         }
