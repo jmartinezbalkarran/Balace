@@ -982,8 +982,8 @@
             let cat = document.getElementById('modalCategoria');
             let opts = tipo.value==='ingreso'?categorias.ingreso:categorias.gasto;
             cat.innerHTML=''; opts.forEach(c=>cat.innerHTML+=`<option value="${c}">${c}</option>`);
-            document.getElementById('modalFecha').value = new Date().toISOString().split('T')[0];
-            document.getElementById('modalMonto').value='';
+            document.getElementById('modalFecha').value = new Date().toLocaleDateString('en-CA');
+ document.getElementById('modalMonto').value='';
             document.getElementById('modalDescripcion').value='';
             modal.style.display='flex';
         }
