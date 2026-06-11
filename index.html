@@ -7,7 +7,7 @@
     <link rel="manifest" href="./manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        /* ========== ESTILOS COMPACTOS (sin cambios) ========== */
+        /* ========== ESTILOS COMPACTOS ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
         body { background: #f0f2f5; }
         .app-header { background: #1a2c3e; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
@@ -27,7 +27,8 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
         .overlay.active { display: block; }
         .main-content { margin-top: 62px; padding: 16px; max-width: 1100px; margin-left: auto; margin-right: auto; }
-        .balance-card { background: linear-gradient(135deg, #1a2c3e, #2c5f8a); border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: center; }
+        .balance-card { background: linear-gradient(135deg, #1a2c3e, #2c5f8a); border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .balance-card:hover { transform: scale(1.02); }
         .balance-label { font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
         .balance-total { font-size: 32px; font-weight: 700; color: white; }
         .submenu-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid #e9ecef; padding-bottom: 6px; }
@@ -73,7 +74,7 @@
         .budget-bar-fill.warning { background: #dc3545; }
         .budget-amount { font-weight: 600; font-size: 13px; min-width: 70px; text-align: right; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; justify-content: center; align-items: center; }
-        .modal-content { background: white; border-radius: 20px; padding: 20px; max-width: 450px; width: 90%; }
+        .modal-content { background: white; border-radius: 20px; padding: 20px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .modal-header h3 { font-size: 18px; font-weight: 600; }
         .close-modal { font-size: 24px; cursor: pointer; color: #adb5bd; }
@@ -89,6 +90,13 @@
         .add-cat-form { display: flex; gap: 8px; margin-top: 12px; }
         .add-cat-form input { flex: 1; }
         .add-cat-form button { width: auto; padding: 8px 12px; }
+        /* Modal de movimientos */
+        .modal-movimiento-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #e9ecef; }
+        .modal-movimiento-info { flex: 1; }
+        .modal-movimiento-desc { font-weight: 600; font-size: 14px; }
+        .modal-movimiento-cat { font-size: 11px; color: #6c757d; margin-top: 2px; }
+        .modal-movimiento-date { font-size: 11px; color: #adb5bd; margin-top: 2px; }
+        .modal-movimiento-amount { font-weight: 700; font-size: 16px; }
         @media (max-width: 768px) { .config-container { grid-template-columns: 1fr; } .main-content { padding: 12px; } .balance-total { font-size: 28px; } .stats-cards { grid-template-columns: 1fr; } canvas { max-height: 180px !important; } }
     </style>
 </head>
@@ -121,7 +129,7 @@
 <div class="overlay" id="overlay" onclick="cerrarMenu()"></div>
 <div class="main-content" id="mainContent"></div>
 
-<!-- Modales -->
+<!-- Modal nuevo movimiento -->
 <div id="nuevoMovimientoModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>➕ Nuevo movimiento</h3><span class="close-modal" onclick="cerrarModalNuevoMovimiento()">&times;</span></div>
 <form id="nuevoMovimientoForm"><div class="form-group"><label>Tipo</label><select id="modalTipo" required><option value="ingreso">💰 Ingreso</option><option value="gasto">💸 Gasto</option></select></div>
 <div class="form-group"><label>Monto (Bs)</label><input type="text" id="modalMonto" required placeholder="Ej: 1.234,56"></div>
@@ -130,6 +138,7 @@
 <div class="form-group"><label>Fecha</label><input type="date" id="modalFecha" required></div>
 <button type="submit" class="btn-primary">✅ Guardar movimiento</button></form></div></div>
 
+<!-- Modal editar movimiento -->
 <div id="editModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>✏️ Editar movimiento</h3><span class="close-modal" onclick="cerrarModal()">&times;</span></div>
 <form id="editForm"><input type="hidden" id="editId"><div class="form-group"><label>Tipo</label><select id="editTipo" required onchange="actualizarSelectEditCategoria(this.value)"><option value="ingreso">💰 Ingreso</option><option value="gasto">💸 Gasto</option></select></div>
 <div class="form-group"><label>Monto (Bs)</label><input type="text" id="editMonto" required placeholder="Ej: 1.234,56"></div>
@@ -138,8 +147,22 @@
 <div class="form-group"><label>Fecha</label><input type="date" id="editFecha" required></div>
 <div class="button-group"><button type="submit" class="btn-primary">💾 Guardar cambios</button><button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button></div></form></div></div>
 
+<!-- Modal de movimientos (al hacer clic en balance total) -->
+<div id="movimientosModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📋 Todos los movimientos</h3>
+            <span class="close-modal" onclick="cerrarMovimientosModal()">&times;</span>
+        </div>
+        <div id="listaMovimientosModal" style="max-height: 60vh; overflow-y: auto;"></div>
+        <div class="button-group" style="margin-top: 16px;">
+            <button class="btn-secondary" onclick="cerrarMovimientosModal()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <div id="acercaModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>ℹ️ Acerca de</h3><span class="close-modal" onclick="cerrarAcercaModal()">&times;</span></div>
-<div><p style="font-size:16px;font-weight:600;color:#1a2c3e;">Finanzas Pro</p><p style="color:#6c757d; font-size:12px;">Versión 5.0</p><hr style="margin:12px 0;"><p style="font-size:12px;"><strong>Características:</strong></p><ul style="margin-left:20px; font-size:12px;"><li>✓ Dashboard unificado con tres pestañas</li><li>✓ Presupuestos mensuales dinámicos</li><li>✓ Gestión completa de categorías (CRUD)</li><li>✓ Gráficos actualizados en tiempo real</li><li>✓ Fechas en zona horaria local</li></ul></div></div></div>
+<div><p style="font-size:16px;font-weight:600;color:#1a2c3e;">Finanzas Pro</p><p style="color:#6c757d; font-size:12px;">Versión 5.1</p><hr style="margin:12px 0;"><p style="font-size:12px;"><strong>Características:</strong></p><ul style="margin-left:20px; font-size:12px;"><li>✓ Dashboard unificado con tres pestañas</li><li>✓ Presupuestos mensuales dinámicos</li><li>✓ Gestión completa de categorías (CRUD)</li><li>✓ Gráficos actualizados en tiempo real</li><li>✓ Fechas en zona horaria local</li><li>✓ Click en balance total → lista de movimientos</li></ul></div></div></div>
 
 <script>
 // ==================== CONFIGURACIÓN GLOBAL ====================
@@ -226,6 +249,11 @@ function obtenerCategoriasUnicas() {
     return Array.from(cats);
 }
 
+// ==================== FUNCIONES DE ORDENAMIENTO ====================
+function ordenarMovimientosPorFecha(lista) {
+    return [...lista].sort((a, b) => new Date(b.fecha + 'T12:00:00') - new Date(a.fecha + 'T12:00:00'));
+}
+
 // ==================== FUNCIONES BASE ====================
 function formatearMontoVisual(v) { return (isNaN(v) || v===null) ? '0,00' : v.toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 function convertirTextoAMonto(t) { if(!t) return 0; let n = parseFloat(t.toString().replace(/\./g,'').replace(',','.')); return isNaN(n)?0:n; }
@@ -252,7 +280,7 @@ function cargarDatos() {
     renderizarVistaActual();
     actualizarSelects();
 }
-function guardarDatos() { localStorage.setItem('finanzas_app', JSON.stringify({ movimientos, presupuestos, version: "5.0" })); }
+function guardarDatos() { localStorage.setItem('finanzas_app', JSON.stringify({ movimientos, presupuestos, version: "5.1" })); }
 
 function actualizarSelects() {
     const filtroCat = document.getElementById('filtroCategoria');
@@ -295,6 +323,34 @@ function getTotalBalance() {
     let ing=movimientos.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+m.monto,0);
     let gas=movimientos.filter(m=>m.tipo==='gasto').reduce((s,m)=>s+m.monto,0);
     return ing-gas;
+}
+
+// ==================== MODAL DE MOVIMIENTOS ====================
+function abrirMovimientosModal() {
+    const modal = document.getElementById('movimientosModal');
+    const container = document.getElementById('listaMovimientosModal');
+    const movimientosOrdenados = ordenarMovimientosPorFecha(movimientos);
+    
+    if (movimientosOrdenados.length === 0) {
+        container.innerHTML = '<div class="empty-state">No hay movimientos registrados</div>';
+    } else {
+        container.innerHTML = movimientosOrdenados.map(m => `
+            <div class="modal-movimiento-item">
+                <div class="modal-movimiento-info">
+                    <div class="modal-movimiento-desc">${m.descripcion}</div>
+                    <div class="modal-movimiento-cat">📌 ${m.categoria}</div>
+                    <div class="modal-movimiento-date">📅 ${m.fecha}</div>
+                </div>
+                <div class="modal-movimiento-amount ${m.tipo === 'ingreso' ? 'income' : 'expense'}">
+                    ${m.tipo === 'ingreso' ? '+' : '-'} ${formatearMontoVisual(m.monto)} Bs
+                </div>
+            </div>
+        `).join('');
+    }
+    modal.style.display = 'flex';
+}
+function cerrarMovimientosModal() {
+    document.getElementById('movimientosModal').style.display = 'none';
 }
 
 // ==================== GRÁFICOS ====================
@@ -402,7 +458,10 @@ function renderDashboard() {
     if(subSeccionDashboard==='balance') contenido = renderBalanceContent();
     else if(subSeccionDashboard==='evolucion') contenido = renderEvolucionContent();
     else if(subSeccionDashboard==='categorias') contenido = renderCategoriasContent();
-    return `<div class="balance-card"><div class="balance-label">BALANCE TOTAL</div><div class="balance-total">${formatearMontoVisual(total)} Bs</div></div>
+    return `<div class="balance-card" onclick="abrirMovimientosModal()">
+                <div class="balance-label">BALANCE TOTAL</div>
+                <div class="balance-total">${formatearMontoVisual(total)} Bs</div>
+            </div>
             <div class="submenu-tabs"><button class="submenu-tab ${subSeccionDashboard==='balance'?'active':''}" onclick="cambiarSubSeccionDashboard('balance')">Balance</button><button class="submenu-tab ${subSeccionDashboard==='evolucion'?'active':''}" onclick="cambiarSubSeccionDashboard('evolucion')">Gráfico</button><button class="submenu-tab ${subSeccionDashboard==='categorias'?'active':''}" onclick="cambiarSubSeccionDashboard('categorias')">Categorías</button></div>${contenido}`;
 }
 function renderBalanceContent() {
@@ -420,7 +479,8 @@ function renderCategoriasContent() {
 }
 
 function renderMovimientos() {
-    return `<div class="form-section"><div class="form-title">🔍 Filtros</div><div class="filters-grid"><input type="date" id="filtroFechaInicio" placeholder="Fecha inicio"><input type="date" id="filtroFechaFin" placeholder="Fecha fin"><select id="filtroTipo"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="gasto">Gastos</option></select><select id="filtroCategoria"></select><div style="display:flex;gap:8px;"><button class="btn-secondary" onclick="aplicarFiltros()">🔍 Aplicar</button><button class="btn-secondary" onclick="limpiarFiltros()">🗑️ Limpiar</button></div></div></div><div class="movements-list"><div id="todosMovimientos">${renderMovimientosLista(movimientos)}</div></div>`;
+    const movimientosOrdenados = ordenarMovimientosPorFecha(movimientos);
+    return `<div class="form-section"><div class="form-title">🔍 Filtros</div><div class="filters-grid"><input type="date" id="filtroFechaInicio" placeholder="Fecha inicio"><input type="date" id="filtroFechaFin" placeholder="Fecha fin"><select id="filtroTipo"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="gasto">Gastos</option></select><select id="filtroCategoria"></select><div style="display:flex;gap:8px;"><button class="btn-secondary" onclick="aplicarFiltros()">🔍 Aplicar</button><button class="btn-secondary" onclick="limpiarFiltros()">🗑️ Limpiar</button></div></div></div><div class="movements-list"><div id="todosMovimientos">${renderMovimientosLista(movimientosOrdenados)}</div></div>`;
 }
 function renderMovimientosLista(lista) {
     if(lista.length===0) return '<div class="empty-state">No hay movimientos</div>';
@@ -525,7 +585,7 @@ function aplicarFiltros() {
     if(f) filtrados = filtrados.filter(m=>m.fecha<=f);
     if(t) filtrados = filtrados.filter(m=>m.tipo===t);
     if(c) filtrados = filtrados.filter(m=>m.categoria===c);
-    filtrados.sort((a,b)=>new Date(b.fecha+'T12:00:00')-new Date(a.fecha+'T12:00:00'));
+    filtrados = ordenarMovimientosPorFecha(filtrados);
     let cont = document.getElementById('todosMovimientos');
     if(cont) cont.innerHTML = renderMovimientosLista(filtrados);
 }
@@ -612,8 +672,8 @@ function exportarJSON() {
     let data = JSON.stringify({ 
         movimientos, 
         presupuestos, 
-        categorias: categoriasPersonalizadas,  // ← ahora incluye las categorías
-        version: "5.0", 
+        categorias: categoriasPersonalizadas,
+        version: "5.1", 
         fechaExportacion: new Date().toISOString() 
     }, null, 2);
     let blob = new Blob([data],{type:'application/json'}); 
@@ -622,7 +682,7 @@ function exportarJSON() {
     a.download=`finanzas_backup_${new Date().toISOString().split('T')[0]}.json`; 
     a.click(); 
     URL.revokeObjectURL(a.href); 
-    alert('✅ Datos exportados (incluye categorías)');
+    alert('✅ Datos exportados');
 }
 function importarJSONPrompt() {
     let input = document.createElement('input'); 
@@ -642,7 +702,7 @@ function importarJSONPrompt() {
                 }
                 guardarDatos(); 
                 renderizarVistaActual(); 
-                alert('✅ Datos importados (incluye categorías)'); 
+                alert('✅ Datos importados'); 
             }catch(e){ 
                 alert('Error JSON'); 
             } 
@@ -653,7 +713,12 @@ function importarJSONPrompt() {
 }
 function abrirAcerca() { document.getElementById('acercaModal').style.display='flex'; }
 function cerrarAcercaModal() { document.getElementById('acercaModal').style.display='none'; }
-window.onclick = e => { if(e.target===document.getElementById('editModal')) cerrarModal(); if(e.target===document.getElementById('acercaModal')) cerrarAcercaModal(); if(e.target===document.getElementById('nuevoMovimientoModal')) cerrarModalNuevoMovimiento(); };
+window.onclick = e => { 
+    if(e.target===document.getElementById('editModal')) cerrarModal(); 
+    if(e.target===document.getElementById('acercaModal')) cerrarAcercaModal(); 
+    if(e.target===document.getElementById('nuevoMovimientoModal')) cerrarModalNuevoMovimiento();
+    if(e.target===document.getElementById('movimientosModal')) cerrarMovimientosModal();
+};
 
 // Exponer funciones globales
 window.cambiarVista = cambiarVista; window.toggleMenu = toggleMenu; window.cerrarMenu = cerrarMenu; window.cerrarYCambiarVista = cerrarYCambiarVista;
@@ -667,6 +732,7 @@ window.cambiarAgrupacionDashboard = cambiarAgrupacionDashboard; window.cambiarPe
 window.cambiarTipoCategoriasDashboard = cambiarTipoCategoriasDashboard;
 window.agregarCategoriaUI = agregarCategoriaUI; window.editarCategoriaUI = editarCategoriaUI; window.eliminarCategoriaUI = eliminarCategoriaUI;
 window.reiniciarCategoriasDefault = reiniciarCategoriasDefault;
+window.abrirMovimientosModal = abrirMovimientosModal; window.cerrarMovimientosModal = cerrarMovimientosModal;
 
 cargarDatos();
 </script>
