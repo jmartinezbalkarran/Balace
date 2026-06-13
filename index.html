@@ -128,7 +128,7 @@
 <div class="overlay" id="overlay" onclick="cerrarMenu()"></div>
 <div class="main-content" id="mainContent"></div>
 
-<!-- Modal nuevo movimiento -->
+<!-- Modales (sin cambios) -->
 <div id="nuevoMovimientoModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>➕ Nuevo movimiento</h3><span class="close-modal" onclick="cerrarModalNuevoMovimiento()">&times;</span></div>
 <form id="nuevoMovimientoForm"><div class="form-group"><label>Tipo</label><select id="modalTipo" required><option value="ingreso">💰 Ingreso</option><option value="gasto">💸 Gasto</option></select></div>
 <div class="form-group"><label>Monto (Bs)</label><input type="text" id="modalMonto" required placeholder="Ej: 1.234,56"></div>
@@ -137,7 +137,6 @@
 <div class="form-group"><label>Fecha</label><input type="date" id="modalFecha" required></div>
 <button type="submit" class="btn-primary">✅ Guardar movimiento</button></form></div></div>
 
-<!-- Modal editar movimiento -->
 <div id="editModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>✏️ Editar movimiento</h3><span class="close-modal" onclick="cerrarModal()">&times;</span></div>
 <form id="editForm"><input type="hidden" id="editId"><div class="form-group"><label>Tipo</label><select id="editTipo" required onchange="actualizarSelectEditCategoria(this.value)"><option value="ingreso">💰 Ingreso</option><option value="gasto">💸 Gasto</option></select></div>
 <div class="form-group"><label>Monto (Bs)</label><input type="text" id="editMonto" required placeholder="Ej: 1.234,56"></div>
@@ -146,22 +145,16 @@
 <div class="form-group"><label>Fecha</label><input type="date" id="editFecha" required></div>
 <div class="button-group"><button type="submit" class="btn-primary">💾 Guardar cambios</button><button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button></div></form></div></div>
 
-<!-- Modal de movimientos -->
 <div id="movimientosModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header">
-            <h3>📋 Todos los movimientos</h3>
-            <span class="close-modal" onclick="cerrarMovimientosModal()">&times;</span>
-        </div>
+        <div class="modal-header"><h3>📋 Todos los movimientos</h3><span class="close-modal" onclick="cerrarMovimientosModal()">&times;</span></div>
         <div id="listaMovimientosModal" style="max-height: 60vh; overflow-y: auto;"></div>
-        <div class="button-group" style="margin-top: 16px;">
-            <button class="btn-secondary" onclick="cerrarMovimientosModal()">Cerrar</button>
-        </div>
+        <div class="button-group" style="margin-top: 16px;"><button class="btn-secondary" onclick="cerrarMovimientosModal()">Cerrar</button></div>
     </div>
 </div>
 
 <div id="acercaModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>ℹ️ Acerca de</h3><span class="close-modal" onclick="cerrarAcercaModal()">&times;</span></div>
-<div><p style="font-size:16px;font-weight:600;color:#1a2c3e;">Finanzas Pro</p><p style="color:#6c757d; font-size:12px;">Versión 5.1</p><hr style="margin:12px 0;"><p style="font-size:12px;"><strong>Características:</strong></p><ul style="margin-left:20px; font-size:12px;"><li>✓ Dashboard unificado con tres pestañas</li><li>✓ Presupuestos mensuales dinámicos</li><li>✓ Gestión completa de categorías (CRUD)</li><li>✓ Gráficos actualizados en tiempo real</li><li>✓ Fechas en zona horaria local</li><li>✓ Click en balance total → lista de movimientos</li><li>✓ Movimientos ordenados por fecha (más reciente primero)</li></ul></div></div></div>
+<div><p style="font-size:16px;font-weight:600;color:#1a2c3e;">Finanzas Pro</p><p style="color:#6c757d; font-size:12px;">Versión 5.2</p><hr style="margin:12px 0;"><p style="font-size:12px;"><strong>Características:</strong></p><ul style="margin-left:20px; font-size:12px;"><li>✓ Dashboard unificado con tres pestañas</li><li>✓ Presupuestos mensuales dinámicos</li><li>✓ Gestión completa de categorías (CRUD)</li><li>✓ Gráficos actualizados en tiempo real</li><li>✓ Gráfico semanal: semanas del mes actual</li></ul></div></div></div>
 
 <script>
 // ==================== CONFIGURACIÓN GLOBAL ====================
@@ -177,30 +170,21 @@ let tipoCategorias = 'ingreso';
 let subSeccionDashboard = 'balance';
 let categoriasPersonalizadas = { ingreso: [], gasto: [] };
 
-// ==================== FUNCIONES DE CATEGORÍAS ====================
+// ==================== FUNCIONES DE CATEGORÍAS (sin cambios) ====================
 function cargarCategorias() {
     const guardado = localStorage.getItem('finanzas_categorias');
     if (guardado) {
         categoriasPersonalizadas = JSON.parse(guardado);
     } else {
-        categoriasPersonalizadas = {
-            ingreso: ['Sueldo', 'Ventas', 'Otros'],
-            gasto: ['Alimentos', 'Vivienda', 'Otros']
-        };
+        categoriasPersonalizadas = { ingreso: ['Sueldo', 'Ventas', 'Otros'], gasto: ['Alimentos', 'Vivienda', 'Otros'] };
         guardarCategorias();
     }
 }
-function guardarCategorias() {
-    localStorage.setItem('finanzas_categorias', JSON.stringify(categoriasPersonalizadas));
-}
-function obtenerCategorias(tipo) {
-    return [...categoriasPersonalizadas[tipo]];
-}
+function guardarCategorias() { localStorage.setItem('finanzas_categorias', JSON.stringify(categoriasPersonalizadas)); }
 function agregarCategoria(tipo, nombre) {
     nombre = nombre.trim();
     if (!nombre) return false;
-    const existe = categoriasPersonalizadas[tipo].some(c => c.toLowerCase() === nombre.toLowerCase());
-    if (existe) return false;
+    if (categoriasPersonalizadas[tipo].some(c => c.toLowerCase() === nombre.toLowerCase())) return false;
     categoriasPersonalizadas[tipo].push(nombre);
     guardarCategorias();
     return true;
@@ -212,50 +196,34 @@ function editarCategoria(tipo, viejoNombre, nuevoNombre) {
     const idx = categoriasPersonalizadas[tipo].findIndex(c => c === viejoNombre);
     if (idx === -1) return false;
     if (categoriasPersonalizadas[tipo].some(c => c.toLowerCase() === nuevoNombre.toLowerCase())) return false;
-    movimientos.forEach(m => {
-        if (m.tipo === tipo && m.categoria === viejoNombre) m.categoria = nuevoNombre;
-    });
-    if (tipo === 'gasto' && presupuestos[viejoNombre] !== undefined) {
-        presupuestos[nuevoNombre] = presupuestos[viejoNombre];
-        delete presupuestos[viejoNombre];
-    }
+    movimientos.forEach(m => { if (m.tipo === tipo && m.categoria === viejoNombre) m.categoria = nuevoNombre; });
+    if (tipo === 'gasto' && presupuestos[viejoNombre] !== undefined) { presupuestos[nuevoNombre] = presupuestos[viejoNombre]; delete presupuestos[viejoNombre]; }
     categoriasPersonalizadas[tipo][idx] = nuevoNombre;
     guardarCategorias();
     guardarDatos();
     return true;
 }
 function eliminarCategoria(tipo, nombre) {
-    const movs = movimientos.filter(m => m.tipo === tipo && m.categoria === nombre);
-    if (movs.length > 0) {
-        alert(`No se puede eliminar la categoría "${nombre}" porque tiene ${movs.length} movimiento(s) asociado(s). Reasígnelos primero.`);
+    if (movimientos.some(m => m.tipo === tipo && m.categoria === nombre)) {
+        alert(`No se puede eliminar "${nombre}" porque hay movimientos asociados.`);
         return false;
     }
     if (tipo === 'gasto' && presupuestos[nombre] !== undefined) {
-        alert(`No se puede eliminar la categoría "${nombre}" porque tiene un presupuesto asignado. Elimine primero el presupuesto.`);
+        alert(`No se puede eliminar "${nombre}" porque tiene un presupuesto.`);
         return false;
     }
     const idx = categoriasPersonalizadas[tipo].findIndex(c => c === nombre);
-    if (idx !== -1) {
-        categoriasPersonalizadas[tipo].splice(idx, 1);
-        guardarCategorias();
-        return true;
-    }
+    if (idx !== -1) { categoriasPersonalizadas[tipo].splice(idx, 1); guardarCategorias(); return true; }
     return false;
 }
-function obtenerCategoriasUnicas() {
-    const cats = new Set();
-    movimientos.forEach(m => cats.add(m.categoria));
-    return Array.from(cats);
-}
+function obtenerCategoriasUnicas() { return [...new Set(movimientos.map(m => m.categoria))]; }
 
-// ==================== FUNCIONES DE ORDENAMIENTO (CORREGIDAS) ====================
+// ==================== ORDENAMIENTO ====================
 function ordenarMovimientosPorFecha(lista) {
     return [...lista].sort((a, b) => {
-        // Primero ordenar por fecha (más reciente primero)
         const fechaA = new Date(a.fecha + 'T12:00:00');
         const fechaB = new Date(b.fecha + 'T12:00:00');
         if (fechaB - fechaA !== 0) return fechaB - fechaA;
-        // Si misma fecha, ordenar por id (más nuevo primero = id más grande)
         return b.id - a.id;
     });
 }
@@ -274,26 +242,17 @@ function mismoMes(f1,f2) { let d1 = new Date(f1), d2 = new Date(f2); return d1.g
 
 function cargarDatos() {
     const g = localStorage.getItem('finanzas_app');
-    if(g) { 
-        let data = JSON.parse(g); 
-        movimientos = data.movimientos || []; 
-        presupuestos = data.presupuestos || {}; 
-    } else {
-        movimientos = [];
-        presupuestos = {};
-    }
-    // Ordenar movimientos al cargar
+    if(g) { let data = JSON.parse(g); movimientos = data.movimientos || []; presupuestos = data.presupuestos || {}; }
+    else { movimientos = []; presupuestos = {}; }
     movimientos = ordenarMovimientosPorFecha(movimientos);
     cargarCategorias();
     renderizarVistaActual();
     actualizarSelects();
 }
 function guardarDatos() { 
-    // Asegurar que los movimientos estén ordenados antes de guardar
     movimientos = ordenarMovimientosPorFecha(movimientos);
-    localStorage.setItem('finanzas_app', JSON.stringify({ movimientos, presupuestos, version: "5.1" })); 
+    localStorage.setItem('finanzas_app', JSON.stringify({ movimientos, presupuestos, version: "5.2" })); 
 }
-
 function actualizarSelects() {
     const filtroCat = document.getElementById('filtroCategoria');
     if(filtroCat) {
@@ -302,10 +261,7 @@ function actualizarSelects() {
         todas.forEach(c => filtroCat.innerHTML += `<option value="${c}">${c}</option>`);
     }
     const selectPresup = document.getElementById('selectCategoriaPresupuesto');
-    if(selectPresup) {
-        selectPresup.innerHTML = '';
-        categoriasPersonalizadas.gasto.forEach(c => selectPresup.innerHTML += `<option value="${c}">${c}</option>`);
-    }
+    if(selectPresup) { selectPresup.innerHTML = ''; categoriasPersonalizadas.gasto.forEach(c => selectPresup.innerHTML += `<option value="${c}">${c}</option>`); }
     const mt = document.getElementById('modalTipo');
     const mc = document.getElementById('modalCategoria');
     if(mt && mc) {
@@ -337,36 +293,7 @@ function getTotalBalance() {
     return ing-gas;
 }
 
-// ==================== MODAL DE MOVIMIENTOS ====================
-function abrirMovimientosModal() {
-    const modal = document.getElementById('movimientosModal');
-    const container = document.getElementById('listaMovimientosModal');
-    // Asegurar orden correcto antes de mostrar
-    const movimientosOrdenados = ordenarMovimientosPorFecha(movimientos);
-    
-    if (movimientosOrdenados.length === 0) {
-        container.innerHTML = '<div class="empty-state">No hay movimientos registrados</div>';
-    } else {
-        container.innerHTML = movimientosOrdenados.map(m => `
-            <div class="modal-movimiento-item">
-                <div class="modal-movimiento-info">
-                    <div class="modal-movimiento-desc">${m.descripcion}</div>
-                    <div class="modal-movimiento-cat">📌 ${m.categoria}</div>
-                    <div class="modal-movimiento-date">📅 ${m.fecha}</div>
-                </div>
-                <div class="modal-movimiento-amount ${m.tipo === 'ingreso' ? 'income' : 'expense'}">
-                    ${m.tipo === 'ingreso' ? '+' : '-'} ${formatearMontoVisual(m.monto)} Bs
-                </div>
-            </div>
-        `).join('');
-    }
-    modal.style.display = 'flex';
-}
-function cerrarMovimientosModal() {
-    document.getElementById('movimientosModal').style.display = 'none';
-}
-
-// ==================== GRÁFICOS ====================
+// ==================== DATOS PARA GRÁFICOS (MODIFICADO: semanas del mes actual) ====================
 function obtenerDatosDiarios() {
     const hoy = new Date();
     let lunes = new Date(hoy);
@@ -383,26 +310,51 @@ function obtenerDatosDiarios() {
     }
     return {labels, ingresosData, gastosData};
 }
+
+// NUEVA FUNCIÓN: obtener semanas del mes actual (1 a N)
 function obtenerDatosSemanales() {
-    const hoy = new Date(), hoyStr = hoy.toLocaleDateString('en-CA');
-    function getWeekNumber(dateStr) { let d = new Date(dateStr+'T12:00:00'); d.setHours(0,0,0,0); d.setDate(d.getDate() + 4 - (d.getDay() || 7)); let yearStart = new Date(d.getFullYear(),0,1); return Math.ceil((((d - yearStart) / 86400000) + 1) / 7); }
-    let semanaActual = getWeekNumber(hoyStr), añoActual = hoy.getFullYear();
-    let labels=[], ingD=[], gasD=[];
-    for(let i=4;i>=0;i--){
-        let sem = semanaActual-i, año = añoActual;
-        if(sem<=0){ año--; let finAño = new Date(año,11,31); sem += getWeekNumber(finAño.toLocaleDateString('en-CA')); }
-        labels.push(`S${sem} ${año}`);
-        let ing=0, gas=0;
-        movimientos.forEach(m=>{
-            let fm = new Date(m.fecha+'T12:00:00');
-            if(fm.getFullYear()===año && getWeekNumber(m.fecha)===sem){
-                if(m.tipo==='ingreso') ing+=m.monto; else gas+=m.monto;
+    const hoy = new Date();
+    const año = hoy.getFullYear();
+    const mes = hoy.getMonth(); // 0-11
+    const primerDia = new Date(año, mes, 1);
+    const ultimoDia = new Date(año, mes + 1, 0);
+    
+    // Función para obtener número de semana ISO (lunes a domingo)
+    function getWeekNumber(date) {
+        const d = new Date(date);
+        d.setHours(0,0,0,0);
+        d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+        const yearStart = new Date(d.getFullYear(), 0, 1);
+        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+    
+    // Recorrer cada día del mes y acumular por semana
+    const semanasMap = new Map(); // key: número de semana, value: { ing, gas }
+    for (let d = new Date(primerDia); d <= ultimoDia; d.setDate(d.getDate() + 1)) {
+        const fechaStr = d.toLocaleDateString('en-CA');
+        const semanaNum = getWeekNumber(d);
+        if (!semanasMap.has(semanaNum)) {
+            semanasMap.set(semanaNum, { ing: 0, gas: 0 });
+        }
+        const acc = semanasMap.get(semanaNum);
+        // Sumar movimientos de esa fecha
+        movimientos.forEach(m => {
+            if (m.fecha === fechaStr) {
+                if (m.tipo === 'ingreso') acc.ing += m.monto;
+                else acc.gas += m.monto;
             }
         });
-        ingD.push(ing); gasD.push(gas);
     }
-    return {labels, ingresosData:ingD, gastosData:gasD};
+    
+    // Convertir mapa a arrays ordenados por semana
+    const semanasOrdenadas = Array.from(semanasMap.keys()).sort((a,b) => a - b);
+    const labels = semanasOrdenadas.map((_, idx) => `Semana ${idx+1}`);
+    const ingresosData = semanasOrdenadas.map(sem => semanasMap.get(sem).ing);
+    const gastosData = semanasOrdenadas.map(sem => semanasMap.get(sem).gas);
+    
+    return { labels, ingresosData, gastosData };
 }
+
 function obtenerDatosMensuales() {
     const hoy = new Date();
     let añoAct = hoy.getFullYear(), mesAct = hoy.getMonth();
@@ -423,7 +375,13 @@ function obtenerDatosMensuales() {
     }
     return {labels, ingresosData:ingD, gastosData:gasD};
 }
-function obtenerDatosAgrupados(ag) { if(ag==='dia') return obtenerDatosDiarios(); if(ag==='semana') return obtenerDatosSemanales(); return obtenerDatosMensuales(); }
+
+function obtenerDatosAgrupados(ag) { 
+    if(ag==='dia') return obtenerDatosDiarios(); 
+    if(ag==='semana') return obtenerDatosSemanales(); 
+    return obtenerDatosMensuales(); 
+}
+
 function actualizarGraficoBarrasDinamico() {
     if(chartBarrasDinamico) chartBarrasDinamico.destroy();
     let {labels, ingresosData, gastosData} = obtenerDatosAgrupados(agrupacionActual);
@@ -454,7 +412,7 @@ function actualizarGraficoCategorias() {
     if(ctx) chartActual = new Chart(ctx, { type:'pie', data:{labels, datasets:[{data, backgroundColor:colores}]}, options:{responsive:true, maintainAspectRatio:true, plugins:{legend:{position:'bottom'}}} });
 }
 
-// ==================== RENDERIZADO DE VISTAS ====================
+// ==================== RENDERIZADO DE VISTAS (sin cambios estructurales) ====================
 function renderizarVistaActual() {
     const cont = document.getElementById('mainContent');
     if(chartActual) { chartActual.destroy(); chartActual=null; }
@@ -483,7 +441,7 @@ function renderBalanceContent() {
             <div class="stats-cards"><div class="stat-card"><div class="stat-card-title">INGRESOS</div><div class="stat-card-income">+${formatearMontoVisual(stats.ingresos)} Bs</div></div><div class="stat-card"><div class="stat-card-title">GASTOS</div><div class="stat-card-expense">-${formatearMontoVisual(stats.gastos)} Bs</div></div><div class="stat-card"><div class="stat-card-title">BALANCE</div><div class="stat-card-balance">${formatearMontoVisual(stats.balance)} Bs</div></div></div>`;
 }
 function renderEvolucionContent() {
-    return `<div class="chart-card"><h3>📊 Evolución de Ingresos y Gastos</h3><div class="group-selector"><button class="group-btn ${agrupacionActual==='dia'?'active':''}" onclick="cambiarAgrupacionDashboard('dia')">Por día</button><button class="group-btn ${agrupacionActual==='semana'?'active':''}" onclick="cambiarAgrupacionDashboard('semana')">Por semana</button><button class="group-btn ${agrupacionActual==='mes'?'active':''}" onclick="cambiarAgrupacionDashboard('mes')">Por mes</button></div><canvas id="graficoBarrasDinamico"></canvas></div>`;
+    return `<div class="chart-card"><h3>📊 Evolución de Ingresos y Gastos</h3><div class="group-selector"><button class="group-btn ${agrupacionActual==='dia'?'active':''}" data-group="dia" onclick="cambiarAgrupacionDashboard('dia')">Por día</button><button class="group-btn ${agrupacionActual==='semana'?'active':''}" data-group="semana" onclick="cambiarAgrupacionDashboard('semana')">Por semana</button><button class="group-btn ${agrupacionActual==='mes'?'active':''}" data-group="mes" onclick="cambiarAgrupacionDashboard('mes')">Por mes</button></div><canvas id="graficoBarrasDinamico"></canvas></div>`;
 }
 function renderCategoriasContent() {
     let labelPer = periodoCategorias==='hoy'?'Hoy':(periodoCategorias==='semana'?'Semana':'Mes');
@@ -510,7 +468,7 @@ function renderListaPresupuestos() {
     return categoriasPersonalizadas.gasto.map(cat=>{ let pres=presupuestos[cat]||0, gastado=gastosMes[cat]||0, porc=pres>0?(gastado/pres)*100:0, warn=porc>80; return `<div class="budget-item"><div class="budget-info"><div class="budget-name">${cat}</div><div class="budget-spent">Gastado: ${formatearMontoVisual(gastado)} Bs</div></div><div class="budget-bar-container"><div class="budget-bar"><div class="budget-bar-fill ${warn?'warning':''}" style="width:${Math.min(porc,100)}%"></div></div></div><div class="budget-amount">${formatearMontoVisual(pres)} Bs</div></div>`; }).join('');
 }
 
-function renderConfiguracion() {
+function renderConfiguracion() { /* igual que antes */ 
     return `<div class="form-section"><div class="form-title">⚙️ Configuración de categorías</div><div class="config-container"><div class="config-col"><h3>💰 Ingresos <button class="btn-secondary" style="width:auto; padding:4px 8px;" onclick="reiniciarCategoriasDefault('ingreso')">Restablecer</button></h3><ul class="config-list" id="listaIngresos"></ul><div class="add-cat-form"><input type="text" id="nuevaCatIngreso" placeholder="Nueva categoría"><button class="btn-primary" onclick="agregarCategoriaUI('ingreso')">➕ Agregar</button></div></div><div class="config-col"><h3>💸 Gastos <button class="btn-secondary" style="width:auto; padding:4px 8px;" onclick="reiniciarCategoriasDefault('gasto')">Restablecer</button></h3><ul class="config-list" id="listaGastos"></ul><div class="add-cat-form"><input type="text" id="nuevaCatGasto" placeholder="Nueva categoría"><button class="btn-primary" onclick="agregarCategoriaUI('gasto')">➕ Agregar</button></div></div></div></div>`;
 }
 function cargarListasConfiguracion() {
@@ -569,7 +527,7 @@ function eliminarCategoriaUI(tipo, nombre) {
     }
 }
 function reiniciarCategoriasDefault(tipo) {
-    if(confirm(`¿Restablecer categorías de ${tipo==='ingreso'?'ingresos':'gastos'} a los valores por defecto?`)) {
+    if(confirm(`¿Restablecer categorías de ${tipo==='ingreso'?'ingresos':'gastos'}?`)) {
         if(tipo === 'ingreso') categoriasPersonalizadas.ingreso = ['Sueldo', 'Ventas', 'Otros'];
         else categoriasPersonalizadas.gasto = ['Alimentos', 'Vivienda', 'Otros'];
         guardarCategorias();
@@ -693,53 +651,42 @@ function cambiarPeriodoCategoriasDashboard(p) { periodoCategorias=p; if(subSecci
 function cambiarTipoCategoriasDashboard(t) { tipoCategorias=t; if(subSeccionDashboard==='categorias'){ actualizarGraficoCategorias(); renderizarVistaActual(); } }
 function cambiarVista(v) { vistaActual=v; renderizarVistaActual(); }
 
+function abrirMovimientosModal() {
+    const modal = document.getElementById('movimientosModal');
+    const container = document.getElementById('listaMovimientosModal');
+    const movimientosOrdenados = ordenarMovimientosPorFecha(movimientos);
+    if (movimientosOrdenados.length === 0) {
+        container.innerHTML = '<div class="empty-state">No hay movimientos registrados</div>';
+    } else {
+        container.innerHTML = movimientosOrdenados.map(m => `
+            <div class="modal-movimiento-item">
+                <div class="modal-movimiento-info">
+                    <div class="modal-movimiento-desc">${m.descripcion}</div>
+                    <div class="modal-movimiento-cat">📌 ${m.categoria}</div>
+                    <div class="modal-movimiento-date">📅 ${m.fecha}</div>
+                </div>
+                <div class="modal-movimiento-amount ${m.tipo === 'ingreso' ? 'income' : 'expense'}">
+                    ${m.tipo === 'ingreso' ? '+' : '-'} ${formatearMontoVisual(m.monto)} Bs
+                </div>
+            </div>
+        `).join('');
+    }
+    modal.style.display = 'flex';
+}
+function cerrarMovimientosModal() { document.getElementById('movimientosModal').style.display = 'none'; }
+
 // ==================== MENÚ Y EXPORTAR ====================
 function toggleMenu() { let s=document.getElementById('sidebar'), o=document.getElementById('overlay'); s.classList.toggle('open'); o.classList.toggle('active'); document.body.style.overflow = s.classList.contains('open')?'hidden':''; }
 function cerrarMenu() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); document.body.style.overflow=''; }
 function cerrarYCambiarVista(v) { cerrarMenu(); cambiarVista(v); }
 function exportarJSON() {
-    // Asegurar orden antes de exportar
     movimientos = ordenarMovimientosPorFecha(movimientos);
-    let data = JSON.stringify({ 
-        movimientos, 
-        presupuestos, 
-        categorias: categoriasPersonalizadas,
-        version: "5.1", 
-        fechaExportacion: new Date().toISOString() 
-    }, null, 2);
-    let blob = new Blob([data],{type:'application/json'}); 
-    let a=document.createElement('a'); 
-    a.href=URL.createObjectURL(blob); 
-    a.download=`finanzas_backup_${new Date().toISOString().split('T')[0]}.json`; 
-    a.click(); 
-    URL.revokeObjectURL(a.href); 
-    alert('✅ Datos exportados');
+    let data = JSON.stringify({ movimientos, presupuestos, categorias: categoriasPersonalizadas, version: "5.2", fechaExportacion: new Date().toISOString() }, null, 2);
+    let blob = new Blob([data],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`finanzas_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(a.href); alert('✅ Datos exportados');
 }
 function importarJSONPrompt() {
-    let input = document.createElement('input'); 
-    input.type='file'; 
-    input.accept='.json';
-    input.onchange=e=>{ 
-        let file=e.target.files[0]; 
-        let reader=new FileReader(); 
-        reader.onload=ev=>{ 
-            try{ 
-                let data=JSON.parse(ev.target.result); 
-                if(data.movimientos) movimientos = ordenarMovimientosPorFecha(data.movimientos); 
-                if(data.presupuestos) presupuestos=data.presupuestos;
-                if(data.categorias) {
-                    categoriasPersonalizadas = data.categorias;
-                    guardarCategorias();
-                }
-                guardarDatos(); 
-                renderizarVistaActual(); 
-                alert('✅ Datos importados'); 
-            }catch(e){ 
-                alert('Error JSON'); 
-            } 
-        }; 
-        reader.readAsText(file); 
-    };
+    let input = document.createElement('input'); input.type='file'; input.accept='.json';
+    input.onchange=e=>{ let file=e.target.files[0]; let reader=new FileReader(); reader.onload=ev=>{ try{ let data=JSON.parse(ev.target.result); if(data.movimientos) movimientos = ordenarMovimientosPorFecha(data.movimientos); if(data.presupuestos) presupuestos=data.presupuestos; if(data.categorias) { categoriasPersonalizadas = data.categorias; guardarCategorias(); } guardarDatos(); renderizarVistaActual(); alert('✅ Datos importados'); }catch(e){ alert('Error JSON'); } }; reader.readAsText(file); };
     input.click();
 }
 function abrirAcerca() { document.getElementById('acercaModal').style.display='flex'; }
